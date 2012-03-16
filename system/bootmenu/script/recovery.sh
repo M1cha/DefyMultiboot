@@ -6,13 +6,11 @@
 
 export PATH=/sbin:/system/xbin:/system/bin
 
-# initialize fshook
-chmod 0755 /system/bootmenu/2nd-boot/fshook.init.sh
-/system/bootmenu/2nd-boot/fshook.init.sh
+######## FSHOOK
 
-# edit partition-nodes in devtree
-chmod 0755 /fshook/files/fshook.edit_devtree.sh
-/fshook/files/fshook.edit_devtree.sh
+source /system/bootmenu/2nd-boot/fshook.functions.sh
+fshook_init
+run_script /fshook/files/fshook.edit_devtree.sh
 
 # switch to virtual cache-image
 umount /cache
@@ -106,9 +104,8 @@ fi
 # mount in /sbin/postrecoveryboot.sh
 #umount /system
 
-# move original system-partition to another location
-chmod 0755 /fshook/files/fshook.move_system.sh
-/fshook/files/fshook.move_system.sh
+# FSHOOK part2
+move_system
 
 usleep 50000
 mount -t ext3 -o rw,noatime,nodiratime $PART_SYSTEM /system
@@ -128,14 +125,12 @@ echo 0 > /sys/class/leds/blue/brightness
 echo 1 > /sys/class/leds/button-backlight/brightness
 
 # WORKAROUND: prevent unmount of system-partition
-cp /fshook/files/fshook.prevent_unmount.sh /system/fshook.prevent_unmount.sh
-chmod 0755 /system/fshook.prevent_unmount.sh
-/system/fshook.prevent_unmount.sh&
+prevent_system_unmount
 
 /sbin/recovery
 
 # remove script which prevents unmount
-rm /system/fshook.prevent_unmount.sh
+prevent_system_unmount_cleanup
 
 
 # Post Recovery (back to bootmenu)

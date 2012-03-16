@@ -4,8 +4,11 @@
 
 
 export PATH=/sbin:/system/xbin:/system/bin
+export FSHOOK_IMAGESRC=/dev/block/mmcblk0p1
 
-######## FS-hock
+######## FS-hook
+
+source /system/bootmenu/2nd-boot/fshook.functions.sh
 
 # mount ramdisk rw (moved from 2nd-init)
 mount -o remount,rw /
@@ -13,20 +16,13 @@ mount -o remount,rw /
 # remount dev(moved from 2nd-init because at an later stage this would kill fshook)
 mount -o remount,rw,relatime,mode=775,size=128k /dev
 
-# initialize fshook
-chmod 0755 /system/bootmenu/2nd-boot/fshook.init.sh
-/system/bootmenu/2nd-boot/fshook.init.sh
-
-# edit partition-nodes in devtree
-chmod 0755 /fshook/files/fshook.edit_devtree.sh
-/fshook/files/fshook.edit_devtree.sh
-
-# move original system-partition to another location
-chmod 0755 /fshook/files/fshook.move_system.sh
-/fshook/files/fshook.move_system.sh
-
-# mount virtual system-partition
+fshook_init
+run_script /fshook/files/fshook.edit_devtree.sh
+move_system
 busybox mount -o rw -t ext3 /dev/block/mmcblk1p21 /system
+#patch_batterystats
+
+addPropVar "ro.multiboot" "1"
 
 
 
@@ -35,9 +31,31 @@ busybox mount -o rw -t ext3 /dev/block/mmcblk1p21 /system
 rm -f /*.rc
 cp -f /system/bootmenu/2nd-init/* /
 
-# write init-hook
-cp -f /fshook/files/init.hook.rc /init.mapphone_umts.rc
-cat /system/bootmenu/2nd-init/init.mapphone_umts.rc >> /init.mapphone_umts.rc
+ADBD_RUNNING=`ps | grep adbd | grep -v grep`
+if [ -z "$ADB_RUNNING" ]; then
+    rm -f /sbin/adbd.root
+    rm -f /tmp/usbd_current_state
+    #delete if is a symlink
+    [ -L "/tmp" ] && rm -f /tmp
+    mkdir -p /tmp
+else
+    # well, not beautiful but do the work
+    # to keep current usbd state (if present)
+    if [ -L "/tmp" ]; then
+        mv /tmp/usbd_current_state / 2>/dev/null
+        rm -f /tmp
+        mkdir -p /tmp
+        mv /usbd_current_state /tmp/ 2>/dev/null
+    fi
+fi
+
+if [ -L /sdcard-ext ]; then
+    rm /sdcard-ext
+    mkdir -p /sd-ext
+fi
+
+# patch init-scripts
+patch_initrc
 
 ln -s /init /sbin/ueventd
 cp -f /system/bin/adbd /sbin/adbd

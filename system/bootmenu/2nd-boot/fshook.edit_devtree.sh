@@ -4,6 +4,8 @@
 
 
 export PATH=/sbin:/system/xbin:/system/bin
+source /fshook/files/fshook.functions.sh
+
 
 #### NAND
 # create stub image where all data will be written instead of the real nand
@@ -17,38 +19,23 @@ if [ ! -f /fshook/mounts/imageSrc/fsimages/pds.img ]; then
 fi
 
 # remove ALL references to real nand
-rm /dev/block/mmcblk1p*
+rm -f /dev/block/mmcblk1p*
+errorCheck
 
 # setup stub-partitions
 losetup /dev/block/loop3 /fshook/mounts/imageSrc/fsimages/stub.img
 for i in `seq 1 25`; do
 mknod -m 0600 /dev/block/mmcblk1p$i b 7 3
+errorCheck
 done
 
 
-#### SYSTEM
-# setup virtual image as device
-losetup /dev/block/loop4 /fshook/mounts/imageSrc/fsimages/system.img
-rm /dev/block/mmcblk1p21
-mknod -m 0600 /dev/block/mmcblk1p21 b 7 4
-
-
-######## DATA
-# setup virtual image as device
-losetup /dev/block/loop6 /fshook/mounts/imageSrc/fsimages/data.img
-rm /dev/block/mmcblk1p25
-mknod -m 0600 /dev/block/mmcblk1p25 b 7 6
-
-
-######## CACHE
-# setup virtual image as device
-losetup /dev/block/loop5 /fshook/mounts/imageSrc/fsimages/cache.img
-rm /dev/block/mmcblk1p24
-mknod -m 0600 /dev/block/mmcblk1p24 b 7 5
-
-
-######## PDS
-# setup virtual image as device
-losetup /dev/block/loop2 /fshook/mounts/imageSrc/fsimages/pds.img
-rm /dev/block/mmcblk1p7
-mknod -m 0600 /dev/block/mmcblk1p7 b 7 2
+######## REPLACE PARTITIONS
+# system
+replacePartition mmcblk1p21 system 4
+# data
+replacePartition mmcblk1p25 data 6
+# cache
+replacePartition mmcblk1p24 cache 5
+# pds
+replacePartition mmcblk1p7 pds 2
