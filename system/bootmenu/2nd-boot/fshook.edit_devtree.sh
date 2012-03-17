@@ -9,13 +9,13 @@ loadEnv
 
 ######## NAND
 # create stub image where all data will be written instead of the real nand
-if [ ! -f /fshook/mounts/imageSrc/fsimages/stub.img ]; then
-    dd if=/dev/zero of=/fshook/mounts/imageSrc/fsimages/stub.img bs=1024 count=15000
+if [ ! -f /fshook/mounts/imageSrc$FSHOOK_IMAGEPATH/stub.img ]; then
+    dd if=/dev/zero of=/fshook/mounts/imageSrc$FSHOOK_IMAGEPATH/stub.img bs=1024 count=15000
 fi
 
 # create pds image from original partition
-if [ ! -f /fshook/mounts/imageSrc/fsimages/pds.img ]; then
-    dd if=/dev/block/mmcblk1p7 of=/fshook/mounts/imageSrc/fsimages/pds.img bs=4096
+if [ ! -f /fshook/mounts/imageSrc$FSHOOK_IMAGEPATH/pds.img ]; then
+    dd if=/dev/block/mmcblk1p7 of=/fshook/mounts/imageSrc$FSHOOK_IMAGEPATH/pds.img bs=4096
 fi
 
 # remove ALL references to real nand

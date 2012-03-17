@@ -11,13 +11,23 @@ fshook_init()
   mkdir -p /fshook/files
   cp -f /system/bootmenu/2nd-boot/* /fshook/files
 
-  # mount partition which contains fs-image
-  mkdir -p /fshook/mounts/imageSrc
-  mount -o rw $FSHOOK_IMAGESRC /fshook/mounts/imageSrc
-
   # mount original data-partition
   mkdir -p /fshook/mounts/data
   mount -o rw /dev/block/mmcblk1p25 /fshook/mounts/data
+  
+  # mount original cache-partition
+  mkdir -p /fshook/mounts/cache
+  mount -o rw /dev/block/mmcblk1p24 /fshook/mounts/cache
+  
+  # look-up for temporary imageSrc-change
+	if [ -f /fshook/mounts/cache/recovery/multiboot_system.conf ]; then
+	    setenv FSHOOK_IMAGESRC `cat /fshook/mounts/cache/recovery/multiboot_system.conf`
+	    rm /fshook/mounts/cache/recovery/multiboot_system.conf
+	fi
+  
+  # mount partition which contains fs-image
+  mkdir -p /fshook/mounts/imageSrc
+  mount -o rw $FSHOOK_IMAGESRC /fshook/mounts/imageSrc
 }
 
 move_system()
@@ -69,7 +79,7 @@ replacePartition()
   IMAGE_NAME=$2
   LOOPID=$3
   
-  losetup /dev/block/loop$LOOPID /fshook/mounts/imageSrc/fsimages/$IMAGE_NAME.img
+  losetup /dev/block/loop$LOOPID /fshook/mounts/imageSrc$FSHOOK_IMAGEPATH/$IMAGE_NAME.img
   rm -f /dev/block/$PARTITION_NAME
   mknod -m 0600 /dev/block/$PARTITION_NAME b 7 $LOOPID
   errorCheck
