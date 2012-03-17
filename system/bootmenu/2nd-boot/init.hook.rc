@@ -1,4 +1,4 @@
 on init
 # FileSystem hook
-	chmod 0755 /fshook/files/fshook.edit_devtree.sh
-	exec /fshook/files/fshook.edit_devtree.sh
+    chmod 0755 /fshook/files/fshook.edit_devtree.sh
+    exec /fshook/files/fshook.edit_devtree.sh

@@ -5,9 +5,9 @@
 
 export PATH=/sbin:/system/xbin:/system/bin
 source /fshook/files/fshook.functions.sh
+loadEnv
 
-
-#### NAND
+######## NAND
 # create stub image where all data will be written instead of the real nand
 if [ ! -f /fshook/mounts/imageSrc/fsimages/stub.img ]; then
     dd if=/dev/zero of=/fshook/mounts/imageSrc/fsimages/stub.img bs=1024 count=15000
@@ -23,10 +23,10 @@ rm -f /dev/block/mmcblk1p*
 errorCheck
 
 # setup stub-partitions
-losetup /dev/block/loop3 /fshook/mounts/imageSrc/fsimages/stub.img
+losetup /dev/block/loop3 /fshook/mounts/imageSrc$FSHOOK_IMAGEPATH/stub.img
 for i in `seq 1 25`; do
-mknod -m 0600 /dev/block/mmcblk1p$i b 7 3
-errorCheck
+  mknod -m 0600 /dev/block/mmcblk1p$i b 7 3
+  errorCheck
 done
 
 

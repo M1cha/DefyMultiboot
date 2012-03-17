@@ -2,9 +2,8 @@
 ######## BootMenu Script
 ######## Execute [2nd-init] Menu
 
-
 export PATH=/sbin:/system/xbin:/system/bin
-export FSHOOK_IMAGESRC=/dev/block/mmcblk0p1
+
 
 ######## FS-hook
 
@@ -16,13 +15,23 @@ mount -o remount,rw /
 # remount dev(moved from 2nd-init because at an later stage this would kill fshook)
 mount -o remount,rw,relatime,mode=775,size=128k /dev
 
+# set env's
+setenv FSHOOK_IMAGESRC /dev/block/mmcblk0p1 $1
+setenv FSHOOK_IMAGEPATH /fsimages $2
+
 fshook_init
 run_script /fshook/files/fshook.edit_devtree.sh
 move_system
 busybox mount -o rw -t ext3 /dev/block/mmcblk1p21 /system
 #patch_batterystats
 
+# add props
 addPropVar "ro.multiboot" "1"
+addPropVar "ro.multiboot.source" "$FSHOOK_IMAGESRC"
+addPropVar "ro.multiboot.path" "$FSHOOK_IMAGEPATH"
+
+# save environment variables for later devtree-patching
+saveEnv
 
 
 

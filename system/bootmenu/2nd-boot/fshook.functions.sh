@@ -5,16 +5,6 @@ run_script()
   $1
 }
 
-fshook_parseargs()
-{
-  if [ -z $1 ]; then
-    echo "1"
-
-  else
-    echo "2"
-  fi
-}
-
 fshook_init()
 {
   # copy fshook-files to ramdisk so we can access it while system is unmounted
@@ -110,4 +100,26 @@ errorCheck()
 addPropVar()
 {
   echo -e "\n$1=$2" >> /default.prop
+}
+
+setenv()
+{
+    if [ -z $3 ]; then
+       export $1=$2
+    else
+       export $1=$3
+    fi
+}
+
+saveEnv()
+{
+  export > /fshook/config.sh
+}
+
+loadEnv()
+{
+  # load environment vars (will be the case while re-patching devtree during boot)
+  if [ -f /fshook/config.sh ]; then
+      source /fshook/config.sh
+  fi
 }
