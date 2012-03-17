@@ -1,21 +1,21 @@
 #!/sbin/sh
 
 ######## BootMenu Script
-######## Execute [Latest Recovery] Menu
-
+######## Execute [Stable Recovery] Menu
 
 export PATH=/sbin:/system/xbin:/system/bin
+source /system/bootmenu/2nd-system/fshook.functions.sh
+
 
 ######## FSHOOK
 
-source /system/bootmenu/2nd-system/fshook.functions.sh
+fshook_pathsetup $1 $2
 fshook_init
 run_script /fshook/files/fshook.edit_devtree.sh
 
 # switch to virtual cache-image
 umount /cache
 mount -o nosuid,nodev,noatime,nodiratime,barrier=0 -t ext3 /dev/block/mmcblk1p24 /cache
-
 
 
 ######## Main Script
@@ -44,10 +44,9 @@ chmod 755 /res
 
 cp -r -f /system/bootmenu/recovery/res/* /res/
 cp -p -f /system/bootmenu/recovery/sbin/* /sbin/
-cp -p -f /system/bootmenu/script/recoveryexit.sh /sbin/
 
-if [ ! -f /sbin/recovery ]; then
-    ln -s /sbin/recovery_stable /sbin/recovery
+if [ ! -f /sbin/recovery_stable ]; then
+    ln -s /sbin/recovery /sbin/recovery_stable
 fi
 
 chmod +rx /sbin/*
@@ -69,13 +68,10 @@ touch /tmp/recovery.log
 
 killall adbd
 
-# load overclock settings to reduce heat and battery use
-/system/bootmenu/script/overclock.sh
-
-# mount image of pds, for backup purpose (4MB)
+# mount fake image of pds, for backup purpose (4MB)
 [ ! -d /data/data ] && mount -t ext3 -o rw,noatime,nodiratime,errors=continue $PART_DATA /data
 if [ ! -f /data/pds.img ]; then
-    /system/etc/init.d/02pdsbackup
+    /system/etc/init.d/04pdsbackup
     umount /pds
     losetup -d /dev/block/loop7
 fi
@@ -97,14 +93,11 @@ if [ ! $ret -eq 0 ]; then
 
    # don't use adbd here, will load many android process which locks /system
    killall adbd
-   killall adbd.root
 fi
 
 #############################
 # mount in /sbin/postrecoveryboot.sh
 #umount /system
-
-# FSHOOK part2
 move_system
 
 usleep 50000
@@ -122,20 +115,24 @@ echo 0 > /sys/class/leds/blue/brightness
 #############################
 
 # turn on button backlight (back button is used in CWM Recovery 3.x)
-echo 1 > /sys/class/leds/button-backlight/brightness
+# echo 1 > /sys/class/leds/button-backlight/brightness
+
+# to allow "eat"
+ln -s /sdcard /mnt/sdcard
+cd /sbin && ln -s adbd adbd.root
 
 # WORKAROUND: prevent unmount of system-partition
 prevent_system_unmount
 
-/sbin/recovery
+/sbin/recovery_stable
 
-# remove script which prevents unmount
+# WORKAROUND: delete script
 prevent_system_unmount_cleanup
 
 
 # Post Recovery (back to bootmenu)
 
-# bootmenu support buttons too...
+# bootmenu support buttons too
 # echo 0 > /sys/class/leds/button-backlight/brightness
 
 # remount system & data if unmounted
@@ -143,13 +140,13 @@ prevent_system_unmount_cleanup
 [ ! -f /system/build.prop ] && mount -t ext3 -o rw,noatime,nodiratime,errors=continue $PART_SYSTEM /system
 
 if [ -f /system/build.prop ] ; then
-	echo 0 > /sys/class/leds/red/brightness
-	echo 0 > /sys/class/leds/green/brightness
-	echo 1 > /sys/class/leds/blue/brightness
+  echo 0 > /sys/class/leds/red/brightness
+  echo 0 > /sys/class/leds/green/brightness
+  echo 1 > /sys/class/leds/blue/brightness
 else
-	echo 1 > /sys/class/leds/red/brightness
-	echo 0 > /sys/class/leds/green/brightness
-	echo 0 > /sys/class/leds/blue/brightness
+  echo 1 > /sys/class/leds/red/brightness
+  echo 0 > /sys/class/leds/green/brightness
+  echo 0 > /sys/class/leds/blue/brightness
 fi
 
 

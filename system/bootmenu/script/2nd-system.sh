@@ -3,11 +3,10 @@
 ######## Execute [2nd-init] Menu
 
 export PATH=/sbin:/system/xbin:/system/bin
+source /system/bootmenu/2nd-system/fshook.functions.sh
 
 
 ######## FS-hook
-
-source /system/bootmenu/2nd-system/fshook.functions.sh
 
 # mount ramdisk rw (moved from 2nd-init)
 mount -o remount,rw /
@@ -15,17 +14,7 @@ mount -o remount,rw /
 # remount dev(moved from 2nd-init because at an later stage this would kill fshook)
 mount -o remount,rw,relatime,mode=775,size=128k /dev
 
-### specify paths
-# default-path
-if [ -f /system/bootmenu/config/multiboot_default_system.conf ]; then
-    defaultSystem=`cat /system/bootmenu/config/multiboot_default_system.conf`
-else
-    defaultSystem="/multiboot/default"
-fi
-# path from bootmenu
-setenv FSHOOK_IMAGESRC /dev/block/mmcblk0p1 $1
-setenv FSHOOK_IMAGEPATH $defaultSystem $2
-
+fshook_pathsetup $1 $2
 fshook_init
 run_script /fshook/files/fshook.edit_devtree.sh
 move_system

@@ -5,6 +5,21 @@ run_script()
   $1
 }
 
+fshook_pathsetup()
+{
+  ### specify paths
+  # default-path
+	if [ -f /system/bootmenu/config/multiboot_default_system.conf ]; then
+	    defaultSystem=`cat /system/bootmenu/config/multiboot_default_system.conf`
+	else
+	    defaultSystem="/multiboot/default"
+	fi
+	
+  # path from bootmenu
+	setenv FSHOOK_IMAGESRC /dev/block/mmcblk0p1 $1
+	setenv FSHOOK_IMAGEPATH $defaultSystem $2
+}
+
 fshook_init()
 {
   # copy fshook-files to ramdisk so we can access it while system is unmounted
