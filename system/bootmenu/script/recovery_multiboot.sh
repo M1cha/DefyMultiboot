@@ -3,9 +3,25 @@
 ######## BootMenu Script
 ######## Execute [Latest Recovery] Menu
 
-source /system/bootmenu/script/_config.sh
+
+export PATH=/sbin:/system/xbin:/system/bin
+
+######## FSHOOK
+
+source /system/bootmenu/2nd-system/fshook.functions.sh
+fshook_init
+run_script /fshook/files/fshook.edit_devtree.sh
+
+# switch to virtual cache-image
+umount /cache
+mount -o nosuid,nodev,noatime,nodiratime,barrier=0 -t ext3 /dev/block/mmcblk1p24 /cache
+
+
 
 ######## Main Script
+
+PART_DATA=/dev/block/mmcblk1p25
+PART_SYSTEM=/dev/block/mmcblk1p21
 
 ## /tmp folder can be a link to /data/tmp, bad thing !
 [ -L /tmp ] && rm /tmp
@@ -28,6 +44,7 @@ chmod 755 /res
 
 cp -r -f /system/bootmenu/recovery/res/* /res/
 cp -p -f /system/bootmenu/recovery/sbin/* /sbin/
+cp -p -f /system/bootmenu/script/recoveryexit.sh /sbin/
 
 if [ ! -f /sbin/recovery ]; then
     ln -s /sbin/recovery_stable /sbin/recovery
@@ -52,10 +69,13 @@ touch /tmp/recovery.log
 
 killall adbd
 
+# load overclock settings to reduce heat and battery use
+/system/bootmenu/script/overclock.sh
+
 # mount image of pds, for backup purpose (4MB)
 [ ! -d /data/data ] && mount -t ext3 -o rw,noatime,nodiratime,errors=continue $PART_DATA /data
 if [ ! -f /data/pds.img ]; then
-    /system/etc/init.d/04pdsbackup
+    /system/etc/init.d/02pdsbackup
     umount /pds
     losetup -d /dev/block/loop7
 fi
@@ -77,11 +97,15 @@ if [ ! $ret -eq 0 ]; then
 
    # don't use adbd here, will load many android process which locks /system
    killall adbd
+   killall adbd.root
 fi
 
 #############################
 # mount in /sbin/postrecoveryboot.sh
-umount /system
+#umount /system
+
+# FSHOOK part2
+move_system
 
 usleep 50000
 mount -t ext3 -o rw,noatime,nodiratime $PART_SYSTEM /system
@@ -100,11 +124,13 @@ echo 0 > /sys/class/leds/blue/brightness
 # turn on button backlight (back button is used in CWM Recovery 3.x)
 echo 1 > /sys/class/leds/button-backlight/brightness
 
-# to allow "eat"
-ln -s /sdcard /mnt/sdcard
-cd /sbin && ln -s adbd adbd.root
+# WORKAROUND: prevent unmount of system-partition
+prevent_system_unmount
 
 /sbin/recovery
+
+# remove script which prevents unmount
+prevent_system_unmount_cleanup
 
 
 # Post Recovery (back to bootmenu)

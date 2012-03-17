@@ -9,7 +9,7 @@ fshook_init()
 {
   # copy fshook-files to ramdisk so we can access it while system is unmounted
   mkdir -p /fshook/files
-  cp -f /system/bootmenu/2nd-boot/* /fshook/files
+  cp -f /system/bootmenu/2nd-system/* /fshook/files
 
   # mount original data-partition
   mkdir -p /fshook/mounts/data
