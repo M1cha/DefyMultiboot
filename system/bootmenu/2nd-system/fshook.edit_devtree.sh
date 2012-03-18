@@ -4,18 +4,20 @@
 
 
 export PATH=/sbin:/system/xbin:/system/bin
-source /fshook/files/fshook.functions.sh
+source /fshook/files/_config.sh
+source /fshook/files/fshook.config.sh
+source $FSHOOK_PATH_RD_FILES/fshook.functions.sh
 loadEnv
 
 ######## NAND
 # create stub image where all data will be written instead of the real nand
-if [ ! -f /fshook/mounts/imageSrc$FSHOOK_IMAGEPATH/stub.img ]; then
-    dd if=/dev/zero of=/fshook/mounts/imageSrc$FSHOOK_IMAGEPATH/stub.img bs=1024 count=15000
+if [ ! -f $FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_PATH/stub.img ]; then
+    dd if=/dev/zero of=$FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_PATH/stub.img bs=1024 count=15000
 fi
 
 # create pds image from original partition
-if [ ! -f /fshook/mounts/imageSrc$FSHOOK_IMAGEPATH/pds.img ]; then
-    dd if=/dev/block/mmcblk1p7 of=/fshook/mounts/imageSrc$FSHOOK_IMAGEPATH/pds.img bs=4096
+if [ ! -f $FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_PATH/pds.img ]; then
+    dd if=$PART_PDS/dev/block/mmcblk1p7 of=$FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_PATH/pds.img bs=4096
 fi
 
 # remove ALL references to real nand
@@ -23,7 +25,7 @@ rm -f /dev/block/mmcblk1p*
 errorCheck
 
 # setup stub-partitions
-losetup /dev/block/loop3 /fshook/mounts/imageSrc$FSHOOK_IMAGEPATH/stub.img
+losetup /dev/block/loop3 $FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_PATH/stub.img
 for i in `seq 1 25`; do
   mknod -m 0600 /dev/block/mmcblk1p$i b 7 3
   errorCheck
@@ -32,10 +34,10 @@ done
 
 ######## REPLACE PARTITIONS
 # system
-replacePartition mmcblk1p21 system 4
+replacePartition $PART_SYSTEM system 4
 # data
-replacePartition mmcblk1p25 data 6
+replacePartition $PART_DATA data 6
 # cache
-replacePartition mmcblk1p24 cache 5
+replacePartition $PART_CACHE cache 5
 # pds
-replacePartition mmcblk1p7 pds 2
+replacePartition $PART_PDS pds 2

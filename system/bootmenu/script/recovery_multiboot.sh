@@ -4,24 +4,22 @@
 ######## Execute [Stable Recovery] Menu
 
 export PATH=/sbin:/system/xbin:/system/bin
-source /system/bootmenu/2nd-system/fshook.functions.sh
+source /system/bootmenu/script/_config.sh
+source $BM_ROOTDIR/2nd-system/fshook.config.sh
+source $BM_ROOTDIR/2nd-system/fshook.functions.sh
 
 
 ######## FSHOOK
 
-fshook_pathsetup $1 $2
 fshook_init
-run_script /fshook/files/fshook.edit_devtree.sh
+run_script $FSHOOK_PATH_RD_FILES/fshook.edit_devtree.sh
 
 # switch to virtual cache-image
 umount /cache
-mount -o nosuid,nodev,noatime,nodiratime,barrier=0 -t ext3 /dev/block/mmcblk1p24 /cache
+mount -o nosuid,nodev,noatime,nodiratime,barrier=0 -t ext3 $PART_CACHE /cache
 
 
 ######## Main Script
-
-PART_DATA=/dev/block/mmcblk1p25
-PART_SYSTEM=/dev/block/mmcblk1p21
 
 ## /tmp folder can be a link to /data/tmp, bad thing !
 [ -L /tmp ] && rm /tmp

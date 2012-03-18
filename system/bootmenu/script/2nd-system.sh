@@ -3,7 +3,9 @@
 ######## Execute [2nd-init] Menu
 
 export PATH=/sbin:/system/xbin:/system/bin
-source /system/bootmenu/2nd-system/fshook.functions.sh
+source /system/bootmenu/script/_config.sh
+source $BM_ROOTDIR/2nd-system/fshook.config.sh
+source $BM_ROOTDIR/2nd-system/fshook.functions.sh
 
 
 ######## FS-hook
@@ -14,17 +16,15 @@ mount -o remount,rw /
 # remount dev(moved from 2nd-init because at an later stage this would kill fshook)
 mount -o remount,rw,relatime,mode=775,size=128k /dev
 
-fshook_pathsetup $1 $2
 fshook_init
-run_script /fshook/files/fshook.edit_devtree.sh
+run_script $FSHOOK_PATH_RD_FILES/fshook.edit_devtree.sh
 move_system
-busybox mount -o rw -t ext3 /dev/block/mmcblk1p21 /system
-#patch_batterystats
+busybox mount -o rw $PART_SYSTEM /system
 
 # add props
 addPropVar "ro.multiboot" "1"
-addPropVar "ro.multiboot.source" "$FSHOOK_IMAGESRC"
-addPropVar "ro.multiboot.path" "$FSHOOK_IMAGEPATH"
+addPropVar "ro.multiboot.partition" "$FSHOOK_CONFIG_PARTITION"
+addPropVar "ro.multiboot.path" "$FSHOOK_CONFIG_PATH"
 
 # save environment variables for later devtree-patching
 saveEnv
@@ -101,6 +101,5 @@ rm /sbin/busybox
 echo 18 > /sys/class/leds/lcd-backlight/brightness
 
 ######## Let's go
-
 /system/bootmenu/binary/2nd-init
 
