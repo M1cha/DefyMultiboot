@@ -86,7 +86,15 @@ fshook_init()
   if [ "$bootmode" = "bootvirtual" ];then
    echo "Booting virtual system..."
   elif [ "$bootmode" = "bootnand" ];then
-   throwError
+   umount $FSHOOK_PATH_MOUNT_IMAGESRC
+   errorCheck
+   umount $FSHOOK_PATH_MOUNT_CACHE
+   errorCheck
+   umount $FSHOOK_PATH_MOUNT_DATA
+   errorCheck
+   rm -rf $FSHOOK_PATH_RD
+   $BM_ROOTDIR/script/2nd-init.sh
+   exit 1
   elif [ "$bootmode" = "recovery" ];then
    source $FSHOOK_PATH_RD_FILES/fshook.bootrecovery.sh
    exit 1
