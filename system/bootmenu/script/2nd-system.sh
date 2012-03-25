@@ -10,9 +10,6 @@ source $BM_ROOTDIR/2nd-system/fshook.functions.sh
 
 ######## FS-hook
 
-# mount ramdisk rw (moved from 2nd-init)
-mount -o remount,rw /
-
 # remount dev(moved from 2nd-init because at an later stage this would kill fshook)
 mount -o remount,rw,relatime,mode=775,size=128k /dev
 

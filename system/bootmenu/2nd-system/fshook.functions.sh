@@ -30,13 +30,41 @@ fshook_pathsetup()
     fi
 	fi
 	
-  # make paths global
+	# set global var for partition
 	setenv FSHOOK_CONFIG_PARTITION $fshook_partition
-	setenv FSHOOK_CONFIG_PATH $fshook_path
+	
+	# mount partition which contains fs-image
+  mkdir -p $FSHOOK_PATH_MOUNT_IMAGESRC
+  mount -o rw $FSHOOK_CONFIG_PARTITION $FSHOOK_PATH_MOUNT_IMAGESRC
+	
+	# generate args for GUI
+	args=""
+	for file in /fshook/mounts/imageSrc/multiboot/*; do
+	  if [ -d $file ]; then
+	    name=`basename $file`
+	    args="$args$name "
+	  fi
+	done
+	
+	# get fshook_folder from GUI
+	result=`/system/bootmenu/binary/multiboot $args`
+	result_mode=`echo $result |cut -d' ' -f1`
+  result_name=`echo $result |cut -d' ' -f2`
+  
+  # set 2nd argument as fshook_folder
+  if [ -n $result_name ]; then
+    fshook_folder=$result_name
+  fi
+  
+  # set global var for path to virtual system
+  setenv FSHOOK_CONFIG_PATH "$fshook_path/$fshook_folder"
 }
 
 fshook_init()
 {
+  # mount ramdisk rw
+  mount -o remount,rw /
+ 
   # copy fshook-files to ramdisk so we can access it while system is unmounted
   mkdir -p $FSHOOK_PATH_RD_FILES
   cp -f $FSHOOK_PATH_INSTALLATION/* $FSHOOK_PATH_RD_FILES
@@ -50,12 +78,21 @@ fshook_init()
   mkdir -p $FSHOOK_PATH_MOUNT_CACHE
   mount -o rw $PART_CACHE $FSHOOK_PATH_MOUNT_CACHE
   
-  # setup paths
+  # setup paths(already mounts fsimage-partition)
   fshook_pathsetup
+  bootmode=$result_mode
   
-  # mount partition which contains fs-image
-  mkdir -p $FSHOOK_PATH_MOUNT_IMAGESRC
-  mount -o rw $FSHOOK_CONFIG_PARTITION $FSHOOK_PATH_MOUNT_IMAGESRC
+  # parse bootmode
+  if [ "$bootmode" = "bootvirtual" ];then
+   echo "Booting virtual system..."
+  elif [ "$bootmode" = "bootnand" ];then
+   throwError
+  elif [ "$bootmode" = "recovery" ];then
+   source $FSHOOK_PATH_RD_FILES/fshook.bootrecovery.sh
+   exit 1
+  else
+   throwError
+  fi
 }
 
 move_system()
@@ -97,9 +134,8 @@ replacePartition()
   errorCheck
 }
 
-errorCheck()
+throwError()
 {
-  if [ "$?" -ne "0" ]; then
     # turn off led's
     echo 0 > /sys/class/leds/red/brightness
     echo 0 > /sys/class/leds/green/brightness
@@ -117,6 +153,12 @@ errorCheck()
     # reboot
     echo "Error:$?"
     reboot
+}
+
+errorCheck()
+{
+  if [ "$?" -ne "0" ]; then
+    throwError
   fi
 }
 
