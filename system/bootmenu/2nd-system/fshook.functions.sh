@@ -246,9 +246,14 @@ getLogpath()
   # check for path of cache-partition
   mount | grep $FSHOOK_PATH_MOUNT_CACHE
   if [ $? -ne 0 ]; then
-   logpath=/cache
+   logpath=/cache/multiboot
   else
-   logpath=$FSHOOK_PATH_MOUNT_CACHE
+   logpath=$FSHOOK_PATH_MOUNT_CACHE/multiboot
+  fi
+  
+  # create log-folder if it does not exists
+  if [ ! -d $logpath ]; then
+    mkdir -p $logpath
   fi
 }
 
