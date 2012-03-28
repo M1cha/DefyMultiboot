@@ -2,6 +2,7 @@
 run_script $FSHOOK_PATH_RD_FILES/fshook.edit_devtree.sh
 
 # switch to virtual cache-image
+logd "switch to virtual cache-partition..."
 umount /cache
 mount -o nosuid,nodev,noatime,nodiratime,barrier=0 -t ext3 $PART_CACHE /cache
 

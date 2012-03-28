@@ -1,0 +1,25 @@
+ui_print("******************************************");
+ui_print("Installing BootMenu Multiboot Feature DEV ");
+ui_print("******************************************");
+
+ui_print("Mount system RW...");
+run_program("/sbin/busybox", "mount", "/dev/block/mmcblk1p21", "/system");
+
+ui_print("remove old multiboot-mod...");
+delete_recursive("/system/bootmenu/2nd-system");
+delete("/system/bootmenu/scripts/2nd-system.sh");
+delete("/system/bootmenu/binary/multiboot");
+
+ui_print("install multiboot-mod...");
+package_extract_dir("system", "/system");
+
+ui_print("set permissions...");
+set_perm_recursive(0, 0, 0755, 0755, "/system/bootmenu/2nd-system/");
+set_perm(0, 0, 0755, "/system/bootmenu/scripts/2nd-system.sh");
+set_perm(0, 0, 0755, "/system/bootmenu/binary/multiboot");
+
+ui_print("install fix for old bootmenus...");
+delete("/system/bootmenu/scripts/2nd-boot.sh");
+symlink("./2nd-system.sh", "/system/bootmenu/script/2nd-boot.sh");
+
+ui_print("Done.");

@@ -6,9 +6,12 @@ export PATH=/sbin:/system/xbin:/system/bin
 source /system/bootmenu/script/_config.sh
 source $BM_ROOTDIR/2nd-system/fshook.config.sh
 source $BM_ROOTDIR/2nd-system/fshook.functions.sh
+initlog
 
 
 ######## FS-hook
+
+logi "Started fshook."
 
 # remount dev(moved from 2nd-init because at an later stage this would kill fshook)
 mount -o remount,rw,relatime,mode=775,size=128k /dev
@@ -25,6 +28,7 @@ addPropVar "ro.multiboot.path" "$FSHOOK_CONFIG_PATH"
 
 # save environment variables for later devtree-patching
 saveEnv
+logi "fshook-initialisation done!"
 
 
 

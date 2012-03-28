@@ -8,6 +8,7 @@ source /fshook/files/_config.sh
 source /fshook/files/fshook.config.sh
 source $FSHOOK_PATH_RD_FILES/fshook.functions.sh
 loadEnv
+logi "Patching devtree..."
 
 ######## NAND
 # create stub image where all data will be written instead of the real nand
@@ -25,19 +26,22 @@ rm -f /dev/block/mmcblk1p*
 errorCheck
 
 # setup stub-partitions
+createLoopDevice 12
 losetup /dev/block/loop3 $FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_PATH/stub.img
 for i in `seq 1 25`; do
-  mknod -m 0600 /dev/block/mmcblk1p$i b 7 3
+  mknod -m 0600 /dev/block/mmcblk1p$i b 7 12
   errorCheck
 done
 
 
 ######## REPLACE PARTITIONS
 # system
-replacePartition $PART_SYSTEM system 4
+replacePartition $PART_SYSTEM system 8
 # data
-replacePartition $PART_DATA data 6
+replacePartition $PART_DATA data 9
 # cache
-replacePartition $PART_CACHE cache 5
+replacePartition $PART_CACHE cache 10
 # pds
-replacePartition $PART_PDS pds 2
+replacePartition $PART_PDS pds 11
+
+logd "Done patching devtree!"
