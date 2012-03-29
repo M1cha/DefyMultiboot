@@ -10,38 +10,36 @@ source $FSHOOK_PATH_RD_FILES/fshook.functions.sh
 loadEnv
 logi "Patching devtree..."
 
-######## NAND
-# create stub image where all data will be written instead of the real nand
-if [ ! -f $FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_PATH/stub.img ]; then
-    dd if=/dev/zero of=$FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_PATH/stub.img bs=1024 count=15000
-fi
-
-# create pds image from original partition
-if [ ! -f $FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_PATH/pds.img ]; then
-    dd if=$PART_PDS/dev/block/mmcblk1p7 of=$FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_PATH/pds.img bs=4096
-fi
 
 # remove ALL references to real nand
-rm -f /dev/block/mmcblk1p*
-errorCheck
+#logd "remove ALL references to real nand..."
+#rm -f /dev/block/mmcblk1p*
+#errorCheck
 
-# setup stub-partitions
-createLoopDevice 12
-losetup /dev/block/loop3 $FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_PATH/stub.img
+logd "Setting up loop-devices..."
+mkdir -p $FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_PATH/nand
 for i in `seq 1 25`; do
-  mknod -m 0600 /dev/block/mmcblk1p$i b 7 12
-  errorCheck
+  # exlude system, data and cache
+  if [ $i -eq 21 ];then
+    imagename=system
+  elif [ $i -eq 24 ];then
+    imagename=cache
+  elif [ $i -eq 25 ];then
+    imagename=data
+  else
+    imagename=nand/mmcblk1p$i
+    
+    # backup partition if it doesn't exists
+    if [ ! -f $FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_PATH/$imagename.img ];then
+      logd "backup partition /dev/block/mmcblk1p$i to $FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_PATH/$imagename.img..."
+	    # backup current partition
+	    dd if=/dev/block/mmcblk1p$i of=$FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_PATH/$imagename.img
+	  fi
+  fi
+  
+  
+  # replace partition
+  replacePartition /dev/block/mmcblk1p$i $imagename $(($FSHOOK_LOOPNUMBER_START+$i-1))
 done
 
-
-######## REPLACE PARTITIONS
-# system
-replacePartition $PART_SYSTEM system 8
-# data
-replacePartition $PART_DATA data 9
-# cache
-replacePartition $PART_CACHE cache 10
-# pds
-replacePartition $PART_PDS pds 11
-
-logd "Done patching devtree!"
+logi "Done patching devtree!"
