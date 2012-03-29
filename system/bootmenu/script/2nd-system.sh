@@ -25,6 +25,7 @@ busybox mount -o rw $PART_SYSTEM /system
 addPropVar "ro.multiboot" "1"
 addPropVar "ro.multiboot.partition" "$FSHOOK_CONFIG_PARTITION"
 addPropVar "ro.multiboot.path" "$FSHOOK_CONFIG_PATH"
+addPropVar "ro.multiboot.vs" "$FSHOOK_CONFIG_VS"
 
 # save environment variables for later devtree-patching
 saveEnv

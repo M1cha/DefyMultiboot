@@ -33,6 +33,7 @@ fshook_pathsetup()
 	
 	# set global var for partition
 	setenv FSHOOK_CONFIG_PARTITION $fshook_partition
+	setenv FSHOOK_CONFIG_PATH $fshook_path
 	
 	# mount partition which contains fs-image
   logd "mounting imageSrc-partition..."
@@ -42,7 +43,7 @@ fshook_pathsetup()
 	# generate args for GUI
   logd "search for virtual systems..."
 	args=""
-	for file in /fshook/mounts/imageSrc/multiboot/*; do
+	for file in $FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_PATH/*; do
 	  if [ -d $file ]; then
 	    logd "found $file!"
 	    name=`basename $file`
@@ -63,9 +64,9 @@ fshook_pathsetup()
     fshook_folder=$result_name
     
     # set global var for path to virtual system
-    setenv FSHOOK_CONFIG_PATH "$fshook_path/$fshook_folder"
+    setenv FSHOOK_CONFIG_VS "$fshook_path/$fshook_folder"
   
-    logd "virtual system: $FSHOOK_CONFIG_PATH"
+    logd "virtual system: $FSHOOK_CONFIG_VS"
   fi
   
   logd "path-setup done!"
@@ -171,11 +172,11 @@ replacePartition()
   PARTITION_NODE=$1
   FILENAME=$2
   LOOPID=$3
-  logd "Replacing partition $PARTITION_NODE with loop$LOOPID with image '$FILENAME.img'..."
+  logd "Replacing partition $PARTITION_NODE with loop$LOOPID with image '$FILENAME'..."
   
   # setup loop-device with new image
   createLoopDevice $LOOPID
-  losetup /dev/block/loop$LOOPID $FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_PATH/$FILENAME.img
+  losetup /dev/block/loop$LOOPID $FSHOOK_PATH_MOUNT_IMAGESRC/$FILENAME
   errorCheck
   
   # replace partition with loop-node
