@@ -106,6 +106,26 @@ fshook_init()
    logi "Booting virtual system..."
   elif [ "$bootmode" = "bootnand" ];then
    logi "Booting from NAND..."
+   cleanup
+   logd "run 2nd-init..."
+   $BM_ROOTDIR/script/2nd-init.sh
+   exit $?
+  elif [ "$bootmode" = "recovery" ];then
+   logi "Booting recovery for virtual system..."
+   source $FSHOOK_PATH_RD_FILES/fshook.bootrecovery.sh
+   exit 1
+  elif [ "$bootmode" = "nandrecovery" ];then
+   logi "Booting recovery for NAND-system..."
+   cleanup
+   $BM_ROOTDIR/script/recovery_stable.sh
+   exit $?
+  else
+   throwError
+  fi
+}
+
+cleanup()
+{
    logd "undo changes..."
    umount $FSHOOK_PATH_MOUNT_IMAGESRC
    errorCheck
@@ -114,17 +134,6 @@ fshook_init()
    umount $FSHOOK_PATH_MOUNT_DATA
    errorCheck
    rm -rf $FSHOOK_PATH_RD
-   
-   logd "run 2nd-init..."
-   $BM_ROOTDIR/script/2nd-init.sh
-   exit $?
-  elif [ "$bootmode" = "recovery" ];then
-   logi "Booting recovery for virtual system..."
-   source $FSHOOK_PATH_RD_FILES/fshook.bootrecovery.sh
-   exit 1
-  else
-   throwError
-  fi
 }
 
 move_system()
