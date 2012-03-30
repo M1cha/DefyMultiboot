@@ -31,6 +31,9 @@ chmod 755 /res
 cp -r -f /system/bootmenu/recovery/res/* /res/
 cp -p -f /system/bootmenu/recovery/sbin/* /sbin/
 
+# [fshook]patch resources
+cp -r -f /system/bootmenu/2nd-system/res/* /res/
+
 if [ ! -f /sbin/recovery_stable ]; then
     ln -s /sbin/recovery /sbin/recovery_stable
 fi
