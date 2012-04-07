@@ -11,7 +11,9 @@ find ./tmp/ -type f -name ".gitignore" -exec rm -f {} \;
 # create zip-archive
 rm -Rf ./out/*
 mkdir -p ./out/
-zip -r ./out/multiboot-unsigned.zip ./tmp/*
+cd  ./tmp
+zip -r ../out/multiboot-unsigned.zip *
+cd ..
 
 # delete temp-folder
 rm -Rf ./tmp

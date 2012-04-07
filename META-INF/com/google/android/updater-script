@@ -1,6 +1,6 @@
-ui_print("******************************************");
-ui_print("Installing BootMenu Multiboot Feature DEV ");
-ui_print("******************************************");
+ui_print("*******************************************");
+ui_print("Installing BootMenu Multiboot Feature 0.5.2");
+ui_print("*******************************************");
 
 ui_print("Mount system RW...");
 run_program("/sbin/busybox", "mount", "/dev/block/mmcblk1p21", "/system");
