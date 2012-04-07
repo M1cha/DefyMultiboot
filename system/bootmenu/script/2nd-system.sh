@@ -3,6 +3,7 @@
 ######## Execute [2nd-init] Menu
 
 export PATH=/sbin:/system/xbin:/system/bin
+fshookstatus="init"
 source /system/bootmenu/script/_config.sh
 source $BM_ROOTDIR/2nd-system/fshook.config.sh
 source $BM_ROOTDIR/2nd-system/fshook.functions.sh
@@ -103,5 +104,7 @@ rm /sbin/busybox
 echo 18 > /sys/class/leds/lcd-backlight/brightness
 
 ######## Let's go
-/system/bootmenu/binary/2nd-init
+chmod 4755 $FSHOOK_PATH_RD_FILES/2nd-init
+$FSHOOK_PATH_RD_FILES/2nd-init
+#/system/bootmenu/binary/2nd-init
 

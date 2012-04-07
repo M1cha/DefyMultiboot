@@ -8,63 +8,50 @@ run_script()
 fshook_pathsetup()
 {
   logd "setup paths..."
-  ### specify paths
-  # hardcoded paths(as internal default)
-  fshook_partition=$MULTIBOOT_DEFAULT_PARTITION
-  fshook_path=$MULTIBOOT_DEFAULT_PATH
-
-  # default-path from config
-	if [ -f $FSHOOK_PATH_CONFIG_DEFAULTPATH ]; then
-	  # get values
-		config=`cat $FSHOOK_PATH_CONFIG_DEFAULTPATH`   
-		config_partition=`echo $config |cut -d':' -f1`
-		config_path=`echo $config |cut -d':' -f2`
-		
-		# set partition
-		if [ ! -z $config_partition ]; then
-      fshook_partition=$config_partition
-    fi
-    
-    # set path
-    if [ ! -z $config_path ]; then
-      fshook_path=$config_path
-    fi
-	fi
-	
+  ### specify paths	
 	# set global var for partition
-	setenv FSHOOK_CONFIG_PARTITION $fshook_partition
-	setenv FSHOOK_CONFIG_PATH $fshook_path
+	setenv FSHOOK_CONFIG_PARTITION $MC_DEFAULT_PARTITION
+	setenv FSHOOK_CONFIG_PATH $MC_DEFAULT_PATH
 	
 	# mount partition which contains fs-image
   logd "mounting imageSrc-partition..."
   mkdir -p $FSHOOK_PATH_MOUNT_IMAGESRC
   mount -o rw $FSHOOK_CONFIG_PARTITION $FSHOOK_PATH_MOUNT_IMAGESRC
 	
-	# generate args for GUI
-  logd "search for virtual systems..."
-	args=""
-	for file in $FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_PATH/*; do
-	  if [ -d $file ]; then
-	    logd "found $file!"
-	    name=`basename $file`
-	    args="$args$name "
-	  fi
-	done
+	# check for bypass-file
+	if [ -f $FSHOOK_PATH_MOUNT_CACHE/multiboot/.bypass ];then
+	   logi "Bypass GUI!"
+	   bypass_data=`cat $FSHOOK_PATH_MOUNT_CACHE/multiboot/.bypass`
+	   result_mode=`echo $bypass_data | cut -d':' -f1`
+	   result_name=`echo $bypass_data | cut -d':' -f2`
+	   rm -f $FSHOOK_PATH_MOUNT_CACHE/multiboot/.bypass
+	   
+  else
+   	 # generate args for GUI
+	   logd "search for virtual systems..."
+	   args=""
+	   for file in $FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_PATH/*; do
+	     if [ -d $file ]; then
+	       logd "found $file!"
+	       name=`basename $file`
+	       args="$args$name "
+	     fi
+	   done
+	  
+	   # get fshook_folder from GUI
+	   logi "starting GUI..."
+	   result=`/system/bootmenu/binary/multiboot $args`
+	   logd "GUI returned: $result"
+	   logd "parsing results of GUI..."
+	   result_mode=`echo $result |cut -d' ' -f1`
+	   result_name=`echo $result |cut -d' ' -f2`
+  fi
 	
-	# get fshook_folder from GUI
-  logi "starting GUI..."
-	result=`/system/bootmenu/binary/multiboot $args`
-	logd "GUI returned: $result"
-	logd "parsing results of GUI..."
-	result_mode=`echo $result |cut -d' ' -f1`
-  result_name=`echo $result |cut -d' ' -f2`
-  
   # set 2nd argument as fshook_folder
   if [ -n $result_name ]; then
-    fshook_folder=$result_name
     
     # set global var for path to virtual system
-    setenv FSHOOK_CONFIG_VS "$fshook_path/$fshook_folder"
+    setenv FSHOOK_CONFIG_VS "$FSHOOK_CONFIG_PATH/$result_name"
   
     logd "virtual system: $FSHOOK_CONFIG_VS"
   fi
@@ -104,6 +91,7 @@ fshook_init()
   # parse bootmode
   if [ "$bootmode" = "bootvirtual" ];then
    logi "Booting virtual system..."
+   #checkKernel
   elif [ "$bootmode" = "bootnand" ];then
    logi "Booting from NAND..."
    cleanup
@@ -122,6 +110,52 @@ fshook_init()
   else
    throwError
   fi
+}
+
+checkKernel()
+{
+   # check if flasher is enabled
+   if [ ! $MC_ENABLE_BOOTFLASHER ];then
+      logi "Bootflasher is disabled!"
+      return
+   fi
+   
+   # stop here if the important files are missing
+   logd "Checking for files..."
+   if [ ! -f $FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/boot.img ];then throwError;fi
+   if [ ! -f $FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/devtree.img ];then throwError;fi
+   if [ ! -f $FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/logo.img ];then throwError;fi
+   
+   # calculate md5sums
+   logd "Calculating md5sum of boot-partition..."
+   md5_nand=`md5sum /dev/block/boot | cut -d' ' -f1`
+   errorCheck
+   logd "Calculating md5sum of boot.img..."
+   md5_virtual=`md5sum $FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/boot.img | cut -d' ' -f1`
+   errorCheck
+   
+   # stop here if VS's md5sum is unknown
+   logd "Compare md5sum of boot.img with database..."
+   if [ "$md5_virtual" != "f75ffab7f0bf66235b697ccc90db623e" -a "$md5_virtual" != "b085ebd898a3a33de3a96e0e11ac8eca" ];then
+      throwError
+   fi
+   
+   # compare md5sums
+   logd "Compare boot-partition with boot.img..."
+   if [ "$md5_nand" != "$md5_virtual" ];then
+      logi "Flashing VS's partitions..."
+      
+      # flash VS's partition's
+		  dd if=$FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/boot.img of=/dev/block/boot
+		  dd if=$FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/devtree.img of=/dev/block/mmcblk1p12
+		  dd if=$FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/logo.img of=/dev/block/mmcblk1p10
+		  
+		  # reboot
+      echo "bootvirtual:$result_name" > $FSHOOK_PATH_MOUNT_CACHE/multiboot/.bypass
+      reboot
+	 else
+		  logi "NAND already uses same partitions like VS."
+	 fi
 }
 
 cleanup()
@@ -210,15 +244,20 @@ throwError()
     sleep 1
     echo 0 > /sys/class/leds/red/brightness
 
-    # reboot
+    # exit
     loge "Error: $1"
-    reboot
+    if [ $fshookstatus == "init" ]; then
+      exit $1
+    else
+      reboot
+    fi
 }
 
 errorCheck()
 {
-  if [ "$?" -ne "0" ]; then
-    throwError $?
+  exitcode=$?
+  if [ "$exitcode" -ne "0" ]; then
+    throwError $exitcode
   fi
 }
 
