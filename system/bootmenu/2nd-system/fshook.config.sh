@@ -24,6 +24,6 @@ MC_DEFAULT_PATH="/multiboot"
 # load external config
 if [ -f $FSHOOK_PATH_RD_MOUNTS/$BM_ROOTDIR/config/multiboot.conf ]; then
   source $FSHOOK_PATH_RD_MOUNTS/$BM_ROOTDIR/config/multiboot.conf
-elif [ -f $BM_ROOTDIR/config/multiboot.conf -a $fshookstatus == "init" ]; then
+elif [ -f $BM_ROOTDIR/config/multiboot.conf -a "$fshookstatus" == "init" ]; then
   source $BM_ROOTDIR/config/multiboot.conf
 fi

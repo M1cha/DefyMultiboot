@@ -10,8 +10,8 @@ fshook_pathsetup()
   logd "setup paths..."
   ### specify paths	
 	# set global var for partition
-	setenv FSHOOK_CONFIG_PARTITION $MC_DEFAULT_PARTITION
-	setenv FSHOOK_CONFIG_PATH $MC_DEFAULT_PATH
+	setenv FSHOOK_CONFIG_PARTITION "$MC_DEFAULT_PARTITION"
+	setenv FSHOOK_CONFIG_PATH "$MC_DEFAULT_PATH"
 	
 	# mount partition which contains fs-image
   logd "mounting imageSrc-partition..."
@@ -122,16 +122,16 @@ checkKernel()
    
    # stop here if the important files are missing
    logd "Checking for files..."
-   if [ ! -f $FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/boot.img ];then throwError;fi
-   if [ ! -f $FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/devtree.img ];then throwError;fi
-   if [ ! -f $FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/logo.img ];then throwError;fi
+   if [ ! -f "$FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/boot.img" ];then throwError;fi
+   if [ ! -f "$FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/devtree.img" ];then throwError;fi
+   if [ ! -f "$FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/logo.img" ];then throwError;fi
    
    # calculate md5sums
    logd "Calculating md5sum of boot-partition..."
    md5_nand=`md5sum /dev/block/boot | cut -d' ' -f1`
    errorCheck
    logd "Calculating md5sum of boot.img..."
-   md5_virtual=`md5sum $FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/boot.img | cut -d' ' -f1`
+   md5_virtual=`md5sum "$FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/boot.img" | cut -d' ' -f1`
    errorCheck
    
    # stop here if VS's md5sum is unknown
@@ -146,9 +146,9 @@ checkKernel()
       logi "Flashing VS's partitions..."
       
       # flash VS's partition's
-		  dd if=$FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/boot.img of=/dev/block/boot
-		  dd if=$FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/devtree.img of=/dev/block/mmcblk1p12
-		  dd if=$FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/logo.img of=/dev/block/mmcblk1p10
+		  dd if="$FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/boot.img" of=/dev/block/boot
+		  dd if="$FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/devtree.img" of=/dev/block/mmcblk1p12
+		  dd if="$FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/logo.img" of=/dev/block/mmcblk1p10
 		  
 		  # reboot
       echo "bootvirtual:$result_name" > $FSHOOK_PATH_MOUNT_CACHE/multiboot/.bypass
@@ -203,8 +203,9 @@ prevent_system_unmount_cleanup()
 
 createLoopDevice()
 {
-  if [ ! -f /dev/block/loop$1 ]; then
+  if [ ! -e /dev/block/loop$1 ]; then
 	  # create new loop-device
+    logd "Creating /dev/block/loop$1..."
 	  mknod -m 0600 /dev/block/loop$1 b 7 $1
 	  chown root.root /dev/block/loop$1
   fi
@@ -212,19 +213,22 @@ createLoopDevice()
 
 replacePartition()
 {
-  PARTITION_NODE=$1
-  FILENAME=$2
+  PARTITION_NODE="$1"
+  FILENAME="$2"
   LOOPID=$3
   logd "Replacing partition $PARTITION_NODE with loop$LOOPID with image '$FILENAME'..."
   
   # setup loop-device with new image
   createLoopDevice $LOOPID
-  losetup /dev/block/loop$LOOPID $FSHOOK_PATH_MOUNT_IMAGESRC/$FILENAME
-  errorCheck
+  logd "setup loop..."
+  losetup /dev/block/loop$LOOPID "$FSHOOK_PATH_MOUNT_IMAGESRC/$FILENAME"
+  # losetup returns 1 if filename is longer than 9 chars and losetup already done by init for some reason
+  #errorCheck
   
   # replace partition with loop-node
-  rm -f $PARTITION_NODE
-  mknod -m 0600 $PARTITION_NODE b 7 $LOOPID
+  logd "replace node..."
+  rm -f "$PARTITION_NODE"
+  mknod -m 0600 "$PARTITION_NODE" b 7 $LOOPID
   errorCheck
 }
 
