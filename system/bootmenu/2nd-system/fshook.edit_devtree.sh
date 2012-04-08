@@ -10,12 +10,6 @@ source $FSHOOK_PATH_RD_FILES/fshook.functions.sh
 loadEnv
 logi "Patching devtree..."
 
-
-# remove ALL references to real nand
-#logd "remove ALL references to real nand..."
-#rm -f /dev/block/mmcblk1p*
-#errorCheck
-
 logd "Setting up loop-devices..."
 mkdir -p "$FSHOOK_PATH_MOUNT_IMAGESRC/$FSHOOK_CONFIG_VS/.nand"
 mkdir -p "$FSHOOK_PATH_MOUNT_IMAGESRC/$FSHOOK_CONFIG_PATH/.nand"

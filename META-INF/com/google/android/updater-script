@@ -19,7 +19,8 @@ set_perm(0, 0, 0755, "/system/bootmenu/scripts/2nd-system.sh");
 set_perm(0, 0, 0755, "/system/bootmenu/binary/multiboot");
 
 ui_print("install fix for old bootmenus...");
-delete("/system/bootmenu/scripts/2nd-boot.sh");
-symlink("./2nd-system.sh", "/system/bootmenu/script/2nd-boot.sh");
+package_extract_dir("META-INF/com/google/android/postinstall", "/tmp/postinstall");
+set_perm(0, 0, 0777, "/tmp/postinstall/postinstall.sh");
+run_program("/tmp/postinstall/postinstall.sh");
 
 ui_print("Done.");
