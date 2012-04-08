@@ -223,7 +223,9 @@ replacePartition()
   logd "setup loop..."
   losetup /dev/block/loop$LOOPID "$FSHOOK_PATH_MOUNT_IMAGESRC/$FILENAME"
   # losetup returns 1 if filename is longer than 9 chars and losetup already done by init for some reason
-  #errorCheck
+  if [ "$fshookstatus" == "init" ];then
+    errorCheck
+  fi
   
   # replace partition with loop-node
   logd "replace node..."
