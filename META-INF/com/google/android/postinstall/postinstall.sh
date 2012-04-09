@@ -14,7 +14,7 @@ if [ ! -f /system/bootmenu/script/_config.sh ]; then
 fi
 
 # install 2nd-boot softlink
-if [ ! $supports_2ndsystem ];then
+if [ $supports_2ndsystem == false ];then
   rm -f /system/bootmenu/script/2nd-boot.sh
   ln -s 2nd-system.sh /system/bootmenu/script/2nd-boot.sh
 fi
