@@ -1,5 +1,5 @@
 ui_print("*******************************************");
-ui_print("Installing BootMenu Multiboot Feature 0.5.2");
+ui_print("Installing BootMenu Multiboot Feature 0.5.3");
 ui_print("*******************************************");
 
 ui_print("Mount system RW...");
@@ -18,7 +18,7 @@ set_perm_recursive(0, 0, 0755, 0755, "/system/bootmenu/2nd-system/");
 set_perm(0, 0, 0755, "/system/bootmenu/scripts/2nd-system.sh");
 set_perm(0, 0, 0755, "/system/bootmenu/binary/multiboot");
 
-ui_print("install fix for old bootmenus...");
+ui_print("run postinstall-script...");
 package_extract_dir("META-INF/com/google/android/postinstall", "/tmp/postinstall");
 set_perm(0, 0, 0777, "/tmp/postinstall/postinstall.sh");
 run_program("/tmp/postinstall/postinstall.sh");

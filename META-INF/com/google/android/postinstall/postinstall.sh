@@ -1,19 +1,10 @@
 #!/sbin/sh
 
-# parse bootmenu-version
-version_string=$(expr "`strings /system/bin/bootmenu | grep -i 'Android Bootmenu <.*>'`" : ".*\([0-9]\+\.[0-9]\+\.[0-9]\+\).*")
-version_major=`echo "$version_string" | cut -d '.' -f1`
-version_minor=`echo "$version_string" | cut -d '.' -f2`
-version_patch=`echo "$version_string" | cut -d '.' -f3`
-
 # check for 2ndsystem-support
-supports_2ndsystem=false
-if [ $version_major -le 1 ];then
-  if [ $version_minor -le 1 ];then
-    if [ $version_patch -lt 8 ];then
-      supports_2ndsystem=true
-    fi
-  fi
+if [ `busybox strings /system/bin/bootmenu | busybox grep -ci '\[2nd-system\]'` -lt 1 ];then
+  supports_2ndsystem=false
+else
+  supports_2ndsystem=true
 fi
 
 # check for _config.sh
