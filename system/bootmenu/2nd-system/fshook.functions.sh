@@ -70,7 +70,7 @@ fshook_init()
   # copy fshook-files to ramdisk so we can access it while system is unmounted
   logd "copy multiboot-files to ramdisk..."
   mkdir -p $FSHOOK_PATH_RD_FILES
-  cp -f $FSHOOK_PATH_INSTALLATION/* $FSHOOK_PATH_RD_FILES
+  cp -Rf $FSHOOK_PATH_INSTALLATION/* $FSHOOK_PATH_RD_FILES
   cp -f /system/bootmenu/script/_config.sh $FSHOOK_PATH_RD_FILES/
 
   # mount original data-partition
@@ -241,22 +241,21 @@ throwError()
     echo 0 > /sys/class/leds/green/brightness
     echo 0 > /sys/class/leds/blue/brightness
 
-    # let red led blink two times
+    # turn on red led
     echo 1 > /sys/class/leds/red/brightness
-    sleep 1
-    echo 0 > /sys/class/leds/red/brightness
-    sleep 1
-    echo 1 > /sys/class/leds/red/brightness
-    sleep 1
-    echo 0 > /sys/class/leds/red/brightness
 
-    # exit
+    # log error
     loge "Error: $1"
-    if [ $fshookstatus == "init" ]; then
-      exit $1
-    else
-      reboot
-    fi
+    
+    # create error-log
+    cp -f $logpath/multiboot.log $logpath/error.log
+
+    # show graphical error
+    $FSHOOK_PATH_RD_FILES/errormessage $1
+    
+    # reboot and exit
+    reboot
+    exit $1
 }
 
 errorCheck()
