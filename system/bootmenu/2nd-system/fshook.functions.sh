@@ -221,7 +221,7 @@ replacePartition()
   # setup loop-device with new image
   createLoopDevice $LOOPID
   # losetup returns 1 if filename is longer than 9 chars and losetup already done by init for some reason
-  if [ "$fshookstatus" == "init" ];then
+  if [ "$fshookstatus" == "init" ] || [ "$fshookstatus" == "recovery" ];then
 	  logd "setup loop..."
 	  losetup /dev/block/loop$LOOPID "$FSHOOK_PATH_MOUNT_IMAGESRC/$FILENAME"
     errorCheck
