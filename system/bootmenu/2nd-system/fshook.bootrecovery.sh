@@ -1,5 +1,11 @@
+# Lib-Path for TWRP-recovery
 export LD_LIBRARY_PATH=.:/sbin
-fshookstatus="recovery"
+
+# update fshookstatus
+export fshookstatus="recovery"
+saveEnv
+
+# edit devtree
 run_script $FSHOOK_PATH_RD_FILES/fshook.edit_devtree.sh
 
 # switch to virtual cache-image

@@ -3,7 +3,7 @@
 ######## Execute [2nd-init] Menu
 
 export PATH=/sbin:/system/xbin:/system/bin
-fshookstatus="init"
+export fshookstatus="init"
 source /system/bootmenu/script/_config.sh
 source $BM_ROOTDIR/2nd-system/fshook.config.sh
 source $BM_ROOTDIR/2nd-system/fshook.functions.sh
@@ -29,6 +29,7 @@ addPropVar "ro.multiboot.path" "$FSHOOK_CONFIG_PATH"
 addPropVar "ro.multiboot.vs" "$FSHOOK_CONFIG_VS"
 
 # save environment variables for later devtree-patching
+export fshookstatus="boot"
 saveEnv
 logi "fshook-initialisation done!"
 

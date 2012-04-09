@@ -172,7 +172,7 @@ cleanup()
 
 move_system()
 {
-  logd "moving system-partition into fshook-folder"
+  logd "moving system-partition into fshook-folder..."
   # move original system-partition to fshook-environment
   mkdir -p $FSHOOK_PATH_MOUNT_SYSTEM
   mount -o move /system $FSHOOK_PATH_MOUNT_SYSTEM
@@ -220,10 +220,10 @@ replacePartition()
   
   # setup loop-device with new image
   createLoopDevice $LOOPID
-  logd "setup loop..."
-  losetup /dev/block/loop$LOOPID "$FSHOOK_PATH_MOUNT_IMAGESRC/$FILENAME"
   # losetup returns 1 if filename is longer than 9 chars and losetup already done by init for some reason
   if [ "$fshookstatus" == "init" ];then
+	  logd "setup loop..."
+	  losetup /dev/block/loop$LOOPID "$FSHOOK_PATH_MOUNT_IMAGESRC/$FILENAME"
     errorCheck
   fi
   
