@@ -10,11 +10,10 @@ fi
 # check for _config.sh
 if [ ! -f /system/bootmenu/script/_config.sh ]; then
   cp -f /tmp/postinstall/_config.sh /system/bootmenu/script/_config.sh
-  chmod 0755 /system/bootmenu/script/_config.sh
 fi
 
 # install 2nd-boot softlink
-if [ $supports_2ndsystem == false ];then
+if [ $supports_2ndsystem != true ];then
   rm -f /system/bootmenu/script/2nd-boot.sh
   ln -s 2nd-system.sh /system/bootmenu/script/2nd-boot.sh
 fi
