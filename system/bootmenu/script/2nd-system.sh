@@ -21,6 +21,7 @@ fshook_init
 run_script $FSHOOK_PATH_RD_FILES/fshook.edit_devtree.sh
 move_system
 busybox mount -o rw $PART_SYSTEM /system
+bypass_sign "yes"
 
 # add props
 addPropVar "ro.multiboot" "1"
@@ -35,8 +36,8 @@ logi "fshook-initialisation done!"
 
 
 ######## start initialisation-script
-
-if [ -f /system/framework/com.motorola.android.frameworks.jar ];then
+virtualBootmode=`cat /system/bootmenu/config/default_bootmode.conf`
+if [ $virtualBootmode == "normal" ];then
   logi "booting stock-rom..."
   source $FSHOOK_PATH_RD_FILES/fshook.bootstockrom.sh
 else

@@ -1,4 +1,4 @@
-#!/sbin/sh
+#!/fshook/files/busybox sh
 export PATH=/sbin:/system/xbin:/system/bin
 source /fshook/files/_config.sh
 source /fshook/files/fshook.config.sh

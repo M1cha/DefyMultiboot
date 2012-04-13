@@ -72,6 +72,7 @@ fshook_init()
   mkdir -p $FSHOOK_PATH_RD_FILES
   cp -Rf $FSHOOK_PATH_INSTALLATION/* $FSHOOK_PATH_RD_FILES
   cp -f /system/bootmenu/script/_config.sh $FSHOOK_PATH_RD_FILES/
+  cp -f /system/bootmenu/binary/busybox $FSHOOK_PATH_RD_FILES/
 
   # mount original data-partition
   logd "mounting data-partition..."
@@ -182,10 +183,28 @@ move_system()
 patch_initrc()
 {
   logd "patching init.rc..."
-  cp -f $FSHOOK_PATH_RD_FILES/init.hook.rc /init.mapphone_umts.rc
-  cat /system/bootmenu/2nd-init/init.mapphone_umts.rc >> /init.mapphone_umts.rc
+  cp -f $FSHOOK_PATH_RD_FILES/init.hook.rc /init.rc
+  cat /system/bootmenu/2nd-init/init.rc >> /init.rc
   errorCheck
 } 
+
+bypass_sign()
+{
+  logi "Setting bypass_sign to '$1'..."
+  mkdir -p $FSHOOK_PATH_RD_MOUNTS/vdata
+  logd "mounting virtual data partition..."
+  mount $PART_DATA $FSHOOK_PATH_RD_MOUNTS/vdata
+  errorCheck
+  logd "creating bypass-file..."
+  rm -f "$FSHOOK_PATH_RD_MOUNTS/vdata/.bootmenu_bypass"
+  echo $1 > "$FSHOOK_PATH_RD_MOUNTS/vdata/.bootmenu_bypass"
+  errorCheck
+  logd "unmount virtual data-partition"
+  umount $FSHOOK_PATH_RD_MOUNTS/vdata
+  errorCheck
+  logd "removing folder..."
+  rm -Rf $FSHOOK_PATH_RD_MOUNTS/vdata
+}
 
 prevent_system_unmount()
 {

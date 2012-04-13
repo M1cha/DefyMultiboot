@@ -1,4 +1,4 @@
-#!/sbin/sh
+#!/fshook/files/busybox sh
 
 ######## open a shell
 ######## this is used by multiboot to prevent unmount of system-partition

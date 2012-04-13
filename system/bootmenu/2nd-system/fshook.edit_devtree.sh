@@ -1,4 +1,4 @@
-#!/sbin/sh
+#!/fshook/files/busybox sh
 ######## FsHook Script
 ######## Replace Partitions with images for multiboot
 
