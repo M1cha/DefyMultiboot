@@ -1,5 +1,5 @@
 ui_print("*******************************************");
-ui_print("Installing BootMenu Multiboot Feature 0.5.4");
+ui_print("Installing BootMenu Multiboot Feature 0.5.5");
 ui_print("*******************************************");
 
 ui_print("Mount system RW...");
