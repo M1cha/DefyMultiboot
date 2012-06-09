@@ -4,6 +4,7 @@
 mkdir -p ./tmp/
 cp -R ./META-INF ./tmp/
 cp -R ./system ./tmp/
+cp -f ./multiboot/multiboot.ko ./tmp/system/bootmenu/2nd-system/kernel-modules/
 
 # clean files
 find ./tmp/ -type f -name ".gitignore" -exec rm -f {} \;

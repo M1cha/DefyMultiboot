@@ -10,9 +10,14 @@ source $FSHOOK_PATH_RD_FILES/fshook.functions.sh
 loadEnv
 logi "Patching devtree..."
 
+logd "Loading kernel_modules"
+insmod $FSHOOK_PATH_RD_FILES/kernel-modules/symsearch.ko
+insmod $FSHOOK_PATH_RD_FILES/kernel-modules/multiboot.ko
+
 logd "Setting up loop-devices..."
 mkdir -p "$FSHOOK_PATH_MOUNT_IMAGESRC/$FSHOOK_CONFIG_VS/.nand"
 mkdir -p "$FSHOOK_PATH_MOUNT_IMAGESRC/$FSHOOK_CONFIG_PATH/.nand"
+mkdir -p "$FSHOOK_PATH_RD_NODES"
 for i in `seq 1 25`; do
   # exclude system, data and cache
   if [ $i -eq 21 ];then
@@ -48,7 +53,7 @@ for i in `seq 1 25`; do
   fi
   
   # replace partition
-  replacePartition /dev/block/mmcblk1p$i "$imagename" $(($FSHOOK_LOOPNUMBER_START+$i-1))
+  replacePartition $FSHOOK_PATH_RD_NODES/mmcblk1p$i "$imagename" $(($FSHOOK_LOOPNUMBER_START+$i-1))
 done
 
 logi "Done patching devtree!"

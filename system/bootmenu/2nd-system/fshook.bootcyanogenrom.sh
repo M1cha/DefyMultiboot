@@ -28,7 +28,7 @@ if [ -L /sdcard-ext ]; then
 fi
 
 # patch init-scripts
-patch_initrc
+#patch_initrc
 
 ln -s /init /sbin/ueventd
 cp -f /system/bin/adbd /sbin/adbd
