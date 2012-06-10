@@ -34,16 +34,18 @@ export fshookstatus="boot"
 saveEnv
 logi "fshook-initialisation done!"
 
+nohup /fshook/files/fshook.log.dmesg.sh &
+nohup /fshook/files/fshook.log.logcat.sh &
 
 ######## start initialisation-script
 virtualBootmode=`cat /system/bootmenu/config/default_bootmode.conf`
-if [ $virtualBootmode == "normal" ];then
-  logi "booting stock-rom..."
-  source $FSHOOK_PATH_RD_FILES/fshook.bootstockrom.sh
-else
+#if [ $virtualBootmode == "normal" ];then
+  # logi "booting stock-rom..."
+  #source $FSHOOK_PATH_RD_FILES/fshook.bootstockrom.sh
+#else
   logi "booting cyanogen-rom..."
   source $FSHOOK_PATH_RD_FILES/fshook.bootcyanogenrom.sh
-fi
+#fi
 
 
 

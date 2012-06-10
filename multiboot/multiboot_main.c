@@ -1,5 +1,5 @@
 /*
- * clockfix - fixup module for Motorola Defy/Defy+
+ * multiboot - adds hooks to redirect filesystem-access
  *
  * hooking taken from "n - for testing kernel function hooking" by Nothize
  * require symsearch module by Skrilaz
@@ -46,59 +46,61 @@ module_param(debug, int, 0);
 
 static bool hooked = false;
 
+char* multiboot_parse_filename(const char* name) {
+    char buffer[30];
+    int i;
+    char* ret = name;
+
+    // redirect our nodes
+    for(i=1; i<=25; i++) {
+        // check if current device is a NAND-partition
+        sprintf(buffer, "/dev/block/mmcblk1p%d", i);
+        if(strcmp(name, buffer)==0) {
+            // redirect to our loopdevice-nodes
+            sprintf(buffer, "/fshook/nodes/mmcblk1p%d", i);
+            ret = kmalloc( sizeof(buffer) + 1 , GFP_ATOMIC);
+            strcpy(ret, buffer);
+            break;
+        }
+    }
+
+    if(strcmp(name, "/dev/block/system")==0)  {
+		strcpy(ret, "/fshook/nodes/mmcblk1p21");
+	}
+    else if(strcmp(name, "/dev/block/userdata")==0)  {
+		strcpy(ret, "/fshook/nodes/mmcblk1p25");
+	}
+    else if(strcmp(name, "/dev/block/cache")==0)  {
+		strcpy(ret, "/fshook/nodes/mmcblk1p24");
+	}
+    /*else if(strcmp(name, "/data/system/batterystats.bin")==0)  {
+		strcpy(ret, "/fshook/mounts/data/system/batterystats.bin");
+	}
+    else if(strcmp(name, "/data/system/batterystats.bin.tmp")==0)  {
+		strcpy(ret, "/fshook/mounts/data/system/batterystats.bin.tmp");
+	}*/
+
+    if(strcmp(name, ret)!=0)  {
+        printk("[multiboot] Redirected '%s'->'%s'\n", name, ret);
+    }
+
+    return ret;
+}
+
 /* Hooked Function */
 struct file *do_filp_open(int dfd, const char *pathname,
 		int open_flag, int mode, int acc_mode)
 {
-	struct file * ret;
-	struct file_with_filename *retpatched;
-	char *old_pathname = pathname;
-	char *arg_pathname = pathname;
-	char buffer[30];
-	int i;
-	
-	// redirect our nodes
-	for(i=1; i<=25; i++) {
-	    // check if current device is a NAND-partition
-	    sprintf(buffer, "/dev/block/mmcblk1p%d", i);
-	    if(strcmp(arg_pathname, buffer)==0) {
-		// redirect to our loopdevice-nodes
-		sprintf(buffer, "/fshook/nodes/mmcblk1p%d", i);
-		arg_pathname=buffer;
-		printk("[multiboot] Redirected '%s'->'%s'\n", old_pathname, arg_pathname);
-		break;
-	    }
-	}
-	
-	// call original function
-	ret = HOOK_INVOKE(do_filp_open, dfd, arg_pathname, open_flag, mode, acc_mode);
-	return ret;
+	pathname = multiboot_parse_filename(pathname);
+	return HOOK_INVOKE(do_filp_open, dfd, pathname, open_flag, mode, acc_mode);
 }
 
 long do_mount(char *dev_name, char *dir_name, char *type_page,
-		  unsigned long flags, void *data_page) {
-    long ret;
-    char *old_devname = dev_name;
-    char *arg_devname = dev_name;
-    char buffer[30];
-    int i;
-    
-    printk("[multiboot] mount '%s' on '%s'\n", dev_name, dir_name);
-    
-    for(i=1; i<=25; i++) {
-	// check if current device is a NAND-partition
-	sprintf(buffer, "/dev/block/mmcblk1p%d", i);
-	if(strcmp(arg_devname, buffer)==0) {
-	    // redirect to our loopdevice-nodes
-	    sprintf(buffer, "/fshook/nodes/mmcblk1p%d", i);
-	    arg_devname=buffer;
-	    printk("[multiboot] Redirected '%s'->'%s'\n", old_devname, arg_devname);
-	    break;
-	}
-    }
-    
-    ret = HOOK_INVOKE(do_mount, arg_devname, dir_name, type_page, flags, data_page);
-    return ret;
+		  unsigned long flags, void *data_page)
+{
+	printk("[multiboot] mount %s on %s type %s\n", dev_name, dir_name, type_page);
+	dev_name = multiboot_parse_filename(dev_name);
+    return HOOK_INVOKE(do_mount, dev_name, dir_name, type_page, flags, data_page);
 }
 
 int do_vfs_ioctl(struct file *filp, unsigned int fd, unsigned int cmd,
@@ -110,15 +112,42 @@ int do_vfs_ioctl(struct file *filp, unsigned int fd, unsigned int cmd,
       printk("[multiboot] Prevented clearing Loop-Device\n");
       return 0;
     }
-    
+
     ret = HOOK_INVOKE(do_vfs_ioctl, filp, fd, cmd, arg);
     return ret;
 }
+
+/*int vfs_fstatat(int dfd, char __user *filename, struct kstat *stat, int flag)
+{
+	char *kname;
+	char *old_kname;
+
+	// copy filename to kernel-space
+	kname = getname(filename);
+	old_kname = kname;
+
+	// parse filename
+	kname = multiboot_parse_filename(kname);
+
+	// copy filename back to userspace if it has changed
+	if(strcmp(kname, old_kname)!=0) {
+		if(copy_to_user(filename, kname, strlen(kname) + 1)!=0) {
+			printk("[multiboot] FATAL: vfs_fstatat: could not write back '%s' to user-space!\n", kname);
+		}
+		else {
+			printk("[multiboot] STAT: New filename: '%s'!\n", filename);
+		}
+	}
+
+	kfree(kname);
+	return HOOK_INVOKE(vfs_fstatat, dfd, filename, stat, flag);
+}*/
 
 struct hook_info g_hi[] = {
 	HOOK_INIT(do_filp_open),
 	HOOK_INIT(do_mount),
 	HOOK_INIT(do_vfs_ioctl),
+	//HOOK_INIT(vfs_fstatat),
 	HOOK_INIT_END
 };
 
