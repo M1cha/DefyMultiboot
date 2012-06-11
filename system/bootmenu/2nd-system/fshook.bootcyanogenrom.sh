@@ -1,6 +1,7 @@
 
 ######## Main Script
 
+extractRamdiskFromBoot
 rm -f /*.rc
 cp -r -f /system/bootmenu/2nd-init/* /
 

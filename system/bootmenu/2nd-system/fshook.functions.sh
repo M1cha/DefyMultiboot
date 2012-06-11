@@ -306,6 +306,23 @@ loadEnv()
   fi
 }
 
+extractRamdiskFromBoot()
+{
+  bootimgfile="$FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/boot.img"
+  if [ -f "$bootimgfile" ]; then
+	  # unpack bootimg
+	  mkdir -p "$FSHOOK_PATH_RD_TMP/unpackbootimg"
+	  $FSHOOK_PATH_RD_FILES/unpackbootimg -i "$bootimgfile" -o "$FSHOOK_PATH_RD_TMP/unpackbootimg"
+	  
+	  # extract ramdisk to root
+	  cd /
+	  gunzip -c "$FSHOOK_PATH_RD_TMP/unpackbootimg/boot.img-ramdisk.gz" | cpio -i -u
+	  
+	  # cleanup
+	  rm -rf $FSHOOK_PATH_RD_TMP/unpackbootimg/*
+ fi
+}
+
 getLogpath()
 {
   # check for path of cache-partition
