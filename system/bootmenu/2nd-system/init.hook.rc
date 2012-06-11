@@ -1,7 +1,0 @@
-on init
-# FileSystem hook
-    chmod 0755 /fshook/files/fshook.edit_devtree.sh
-    exec /fshook/files/fshook.edit_devtree.sh
-
-on post-fs
-	exec /fshook/files/fshook.postfshook.sh

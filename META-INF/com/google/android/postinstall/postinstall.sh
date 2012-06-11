@@ -1,7 +1,7 @@
 #!/sbin/sh
 
 # check for 2ndsystem-support
-if [ `busybox strings /system/bin/bootmenu | busybox grep -ci '\[2nd-system\]'` -lt 1 ];then
+if [ `busybox strings /system/bin/bootmenu | busybox grep -ci '2nd-system'` -lt 1 ];then
   supports_2ndsystem=false
 else
   supports_2ndsystem=true

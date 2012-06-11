@@ -180,14 +180,6 @@ move_system()
   errorCheck
 }
 
-patch_initrc()
-{
-  logd "patching init.rc..."
-  cp -f $FSHOOK_PATH_RD_FILES/init.hook.rc /init.rc
-  cat /system/bootmenu/2nd-init/init.rc >> /init.rc
-  errorCheck
-} 
-
 bypass_sign()
 {
   logi "Setting bypass_sign to '$1'..."
