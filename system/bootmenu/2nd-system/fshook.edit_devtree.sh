@@ -12,7 +12,9 @@ logi "Patching devtree..."
 
 logd "Loading kernel_modules"
 insmod $FSHOOK_PATH_RD_FILES/kernel-modules/symsearch.ko
+errorCheck
 insmod $FSHOOK_PATH_RD_FILES/kernel-modules/multiboot.ko
+errorCheck
 
 logd "Setting up loop-devices..."
 mkdir -p "$FSHOOK_PATH_MOUNT_IMAGESRC/$FSHOOK_CONFIG_VS/.nand"

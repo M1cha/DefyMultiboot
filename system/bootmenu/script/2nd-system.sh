@@ -18,7 +18,7 @@ logi "Started fshook."
 mount -o remount,rw,relatime,mode=775,size=128k /dev
 
 fshook_init
-run_script $FSHOOK_PATH_RD_FILES/fshook.edit_devtree.sh
+run_script $FSHOOK_PATH_RD_FILES/fshook.edit_devtree.sh true
 move_system
 busybox mount -o rw $PART_SYSTEM /system
 bypass_sign "yes"

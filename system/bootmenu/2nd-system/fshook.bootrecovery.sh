@@ -6,7 +6,7 @@ export fshookstatus="recovery"
 saveEnv
 
 # edit devtree
-run_script $FSHOOK_PATH_RD_FILES/fshook.edit_devtree.sh
+run_script $FSHOOK_PATH_RD_FILES/fshook.edit_devtree.sh true
 
 # switch to virtual cache-image
 logd "switch to virtual cache-partition..."
