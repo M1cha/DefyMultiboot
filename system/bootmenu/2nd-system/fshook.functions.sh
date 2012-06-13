@@ -9,9 +9,9 @@ run_script()
 	  # check if directory exists
 	  if [ -f $logpath/multiboot.log ]; then
 	    # write to logfile
-      echo -e "=========== RUNNING SCRIPT '$1' ===========\n" >> logpath/multiboot.log
+      echo -e "=========== RUNNING SCRIPT '$1' ===========\n" >> $logpath/multiboot.log
 	    $1 >> $logpath/multiboot.log
-	    echo -e "=========== FINISHED ===========\n" >> logpath/multiboot.log
+	    echo -e "=========== FINISHED ===========\n" >> $logpath/multiboot.log
 	  else
 	    $1
 	  fi
