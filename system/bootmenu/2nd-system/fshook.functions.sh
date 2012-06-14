@@ -2,22 +2,7 @@ run_script()
 {
   logd "running script $1..."
   chmod 0755 $1
- 
-  if [ -n "$2" ];then
-    getLogpath
-  
-	  # check if directory exists
-	  if [ -f $logpath/multiboot.log ]; then
-	    # write to logfile
-      echo -e "=========== RUNNING SCRIPT '$1' ===========\n" >> $logpath/multiboot.log
-	    $1 >> $logpath/multiboot.log
-	    echo -e "=========== FINISHED ===========\n" >> $logpath/multiboot.log
-	  else
-	    $1
-	  fi
-  else
-    $1
-  fi
+  $1
 }
 
 fshook_pathsetup()
