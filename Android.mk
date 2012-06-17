@@ -1,5 +1,6 @@
 
 multiboot_dir := external/multiboot
+MULTIBOOT_VERSION := 0.6
 
 multiboot: \
 	multiboot_clean \
@@ -23,6 +24,9 @@ multiboot_copy_to_temp:
 	# clean files from gitignore-files
 	find $(OUT_DIR)/multiboot_tmp/ -type f -name ".gitignore" -exec rm -f {} \;
 	
+	# create version-file
+	echo $(MULTIBOOT_VERSION) > $(OUT_DIR)/multiboot_tmp/system/bootmenu/2nd-system/.version
+	
 multiboot_copy_to_product:
 	cp -R $(OUT_DIR)/multiboot_tmp/system $(PRODUCT_OUT)/
 	
@@ -34,6 +38,9 @@ multiboot_standalone_update:
 	
 	# copy updater-script
 	cp -R $(multiboot_dir)/META-INF $(OUT_DIR)/multiboot_tmp/
+	mv $(OUT_DIR)/multiboot_tmp/META-INF/com/google/android/updater-script $(OUT_DIR)/multiboot_tmp/META-INF/com/google/android/updater-script.tmp
+	sed -r 's/\{VERSION\}/$(MULTIBOOT_VERSION)/' $(OUT_DIR)/multiboot_tmp/META-INF/com/google/android/updater-script.tmp > $(OUT_DIR)/multiboot_tmp/META-INF/com/google/android/updater-script
+	rm $(OUT_DIR)/multiboot_tmp/META-INF/com/google/android/updater-script.tmp
 	
 	# build zip
 	cd $(OUT_DIR)/multiboot_tmp && zip -r ../../$(PRODUCT_OUT)/multiboot-standalone.zip *
