@@ -1,6 +1,6 @@
 #!/sbin/sh
 ######## BootMenu Script
-######## Execute [2nd-init] Menu
+######## Execute [2nd-system] Menu
 
 export PATH=/sbin:/system/xbin:/system/bin
 export fshookstatus="init"
@@ -8,6 +8,8 @@ source /system/bootmenu/script/_config.sh
 source $BM_ROOTDIR/2nd-system/fshook.config.sh
 source $BM_ROOTDIR/2nd-system/fshook.functions.sh
 initlog
+
+export BMVAR_SYSTEMNAME="$1"
 
 
 ######## FS-hook
@@ -22,6 +24,7 @@ run_script $FSHOOK_PATH_RD_FILES/fshook.edit_devtree.sh true
 move_system
 busybox mount -o rw $PART_SYSTEM /system
 bypass_sign "yes"
+touch $FSHOOK_PATH_BYPASS_CLEANUP
 
 # add props
 addPropVar "ro.multiboot" "1"
@@ -35,7 +38,6 @@ saveEnv
 logi "fshook-initialisation done!"
 
 ######## start initialisation-script
-virtualBootmode=`cat /system/bootmenu/config/default_bootmode.conf`
 logi "booting cyanogen-rom..."
 source $FSHOOK_PATH_RD_FILES/fshook.bootcyanogenrom.sh
 

@@ -9,51 +9,22 @@ fshook_pathsetup()
 {
   logd "setup paths..."
   ### specify paths	
-	# set global var for partition
-	setenv FSHOOK_CONFIG_PARTITION "$MC_DEFAULT_PARTITION"
-	setenv FSHOOK_CONFIG_PATH "$MC_DEFAULT_PATH"
+  # set global var for partition
+  setenv FSHOOK_CONFIG_PARTITION "$MC_DEFAULT_PARTITION"
+  setenv FSHOOK_CONFIG_PATH "$MC_DEFAULT_PATH"
 	
-	# mount partition which contains fs-image
+  # mount partition which contains fs-image
   logd "mounting imageSrc-partition..."
   mkdir -p $FSHOOK_PATH_MOUNT_IMAGESRC
   mount -o rw $FSHOOK_CONFIG_PARTITION $FSHOOK_PATH_MOUNT_IMAGESRC
 	
-	# check for bypass-file
-	if [ -f $FSHOOK_PATH_MOUNT_CACHE/multiboot/.bypass ];then
-	   logi "Bypass GUI!"
-	   bypass_data=`cat $FSHOOK_PATH_MOUNT_CACHE/multiboot/.bypass`
-	   result_mode=`echo $bypass_data | cut -d':' -f1`
-	   result_name=`echo $bypass_data | cut -d':' -f2`
-	   rm -f $FSHOOK_PATH_MOUNT_CACHE/multiboot/.bypass
-	   
+  # check for bypass-file
+  if [ -n "$BMVAR_SYSTEMNAME" ];then
+     logi "Bootmenu passed: $BMVAR_SYSTEMNAME"
+     setenv FSHOOK_CONFIG_VS "$FSHOOK_CONFIG_PATH/$BMVAR_SYSTEMNAME"
+     logd "virtual system: $FSHOOK_CONFIG_VS"
   else
-   	 # generate args for GUI
-	   logd "search for virtual systems..."
-	   args=""
-	   for file in $FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_PATH/*; do
-	     if [ -d $file ]; then
-	       logd "found $file!"
-	       name=`basename $file`
-	       args="$args$name "
-	     fi
-	   done
-	  
-	   # get fshook_folder from GUI
-	   logi "starting GUI..."
-	   result=`/system/bootmenu/binary/multiboot $args`
-	   logd "GUI returned: $result"
-	   logd "parsing results of GUI..."
-	   result_mode=`echo $result |cut -d' ' -f1`
-	   result_name=`echo $result |cut -d' ' -f2`
-  fi
-	
-  # set 2nd argument as fshook_folder
-  if [ -n $result_name ]; then
-    
-    # set global var for path to virtual system
-    setenv FSHOOK_CONFIG_VS "$FSHOOK_CONFIG_PATH/$result_name"
-  
-    logd "virtual system: $FSHOOK_CONFIG_VS"
+     exit 1
   fi
   
   logd "path-setup done!"
@@ -67,7 +38,7 @@ fshook_init()
   logd "mounting ramdisk rw..."
   mount -o remount,rw /
  
-  # copy fshook-files to ramdisk so we can access it while system is unmounted
+  # copy fshook-files to ramdisk so we can access them while system is unmounted
   logd "copy multiboot-files to ramdisk..."
   mkdir -p $FSHOOK_PATH_RD_FILES
   cp -Rf $FSHOOK_PATH_INSTALLATION/* $FSHOOK_PATH_RD_FILES
@@ -86,31 +57,6 @@ fshook_init()
   
   # setup paths(already mounts fsimage-partition)
   fshook_pathsetup
-  bootmode=$result_mode
-  logi "bootmode: $bootmode"
-  
-  # parse bootmode
-  if [ "$bootmode" = "bootvirtual" ];then
-   logi "Booting virtual system..."
-   #checkKernel
-  elif [ "$bootmode" = "bootnand" ];then
-   logi "Booting from NAND..."
-   cleanup
-   logd "run 2nd-init..."
-   $BM_ROOTDIR/script/2nd-init.sh
-   exit $?
-  elif [ "$bootmode" = "recovery" ];then
-   logi "Booting recovery for virtual system..."
-   source $FSHOOK_PATH_RD_FILES/fshook.bootrecovery.sh
-   exit 1
-  elif [ "$bootmode" = "nandrecovery" ];then
-   logi "Booting recovery for NAND-system..."
-   cleanup
-   $BM_ROOTDIR/script/recovery_stable.sh
-   exit $?
-  else
-   throwError
-  fi
 }
 
 checkKernel()
@@ -161,7 +107,7 @@ checkKernel()
 
 cleanup()
 {
-   logd "undo changes..."
+   logd "cleanup..."
    umount $FSHOOK_PATH_MOUNT_IMAGESRC
    errorCheck
    umount $FSHOOK_PATH_MOUNT_CACHE

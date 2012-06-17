@@ -22,10 +22,3 @@ fi
 if [ ! -f /system/bootmenu/config/multiboot.conf ];then
   cp -f /tmp/postinstall/multiboot.conf /system/bootmenu/config/multiboot.conf
 fi
-
-# set default-bootmode
-if [ $supports_2ndsystem == true ];then
- echo "2nd-system" > /system/bootmenu/config/default_bootmode.conf
-else
- echo "2nd-boot" > /system/bootmenu/config/default_bootmode.conf
-fi

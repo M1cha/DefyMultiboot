@@ -1,9 +1,13 @@
 
 ######## Main Script
 
-extractRamdiskFromBoot
+#extractRamdiskFromBoot
+mount -o remount,rw /
 rm -f /*.rc
 cp -r -f /system/bootmenu/2nd-init/* /
+chmod 755 /*.rc
+chmod 4755 $FSHOOK_PATH_RD_FILES/2nd-init
+ln -s /init /sbin/ueventd
 
 ADBD_RUNNING=`ps | grep adbd | grep -v grep`
 if [ -z "$ADB_RUNNING" ]; then
@@ -28,30 +32,24 @@ if [ -L /sdcard-ext ]; then
     mkdir -p /sd-ext
 fi
 
-ln -s /init /sbin/ueventd
-cp -f /system/bin/adbd /sbin/adbd
-
-# chmod 755 /*.rc
-# chmod 4755 /system/bootmenu/binary/2nd-init
-
-ADBD_RUNNING=`ps | grep adbd | grep -v grep`
-if [ -z "$ADB_RUNNING" ]; then
-    rm /sbin/adbd.root
-fi
-
 ## unmount devices
 sync
 umount /acct
+umount /mnt/asec
 umount /dev/cpuctl
 umount /dev/pts
-umount /mnt/asec
 umount /mnt/obb
 umount /cache
 umount /data
 
 ######## Cleanup
 
-rm /sbin/lsof
+# original /tmp data symlink
+if [ -L /tmp.bak ]; then
+  rm /tmp.bak
+fi
+
+rm -f /sbin/lsof
 
 ## busybox cleanup..
 for cmd in $(/sbin/busybox --list); do
@@ -67,5 +65,4 @@ rm /sbin/busybox
 echo 18 > /sys/class/leds/lcd-backlight/brightness
 
 ######## Let's go
-chmod 4755 $FSHOOK_PATH_RD_FILES/2nd-init
 $FSHOOK_PATH_RD_FILES/2nd-init

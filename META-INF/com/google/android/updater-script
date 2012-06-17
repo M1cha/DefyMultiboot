@@ -16,7 +16,6 @@ package_extract_dir("system", "/system");
 ui_print("set permissions...");
 set_perm_recursive(0, 0, 0755, 0755, "/system/bootmenu/2nd-system/");
 set_perm(0, 0, 0755, "/system/bootmenu/scripts/2nd-system.sh");
-set_perm(0, 0, 0755, "/system/bootmenu/binary/multiboot");
 
 ui_print("run postinstall-script...");
 package_extract_dir("META-INF/com/google/android/postinstall", "/tmp/postinstall");

@@ -53,9 +53,10 @@ for i in `seq 1 25`; do
 done
 
 
-logd "Loading kernel_modules"
+logd "Loading kernel_module: symsearch.ko"
 insmod $FSHOOK_PATH_RD_FILES/kernel-modules/symsearch.ko
 errorCheck
+logd "Loading kernel_module: multiboot.ko"
 insmod $FSHOOK_PATH_RD_FILES/kernel-modules/multiboot.ko
 errorCheck
 
