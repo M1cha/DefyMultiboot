@@ -1,0 +1,49 @@
+ui_print("*******************************************");
+ui_print("** Installing Touch-Bootmenu + Multiboot **");
+ui_print("*******************************************");
+
+ui_print("Mount system RW...");
+mount("ext3", "EMMC", "/dev/block/mmcblk1p21", "/system");
+
+ui_print("remove old files...");
+delete_recursive("/system/bootmenu/2nd-system");
+delete_recursive("/system/bootmenu/binary");
+delete_recursive("/system/bootmenu/config");
+delete_recursive("/system/bootmenu/images");
+delete_recursive("/system/bootmenu/recovery");
+delete_recursive("/system/bootmenu/scripts");
+delete("/system/bin/lsof");
+delete("/system/bin/bootmenu");
+delete("/system/bin/logwrapper");
+delete("/system/bin/logwrapper.bin");
+delete("/system/xbin/logwrapper");
+
+ui_print("copy new files...");
+package_extract_dir("system", "/system");
+package_extract_file("system/bin/bootmenu", "/system/bootmenu/binary/bootmenu");
+
+ui_print("create symlinks...");
+symlink("/system/bin/logwrapper.bin","/system/xbin/logwrapper");
+symlink("/system/bin/bootmenu", "/system/bin/logwrapper");
+symlink("/system/bootmenu/binary/lsof", "/system/bin/lsof");
+symlink("indeterminate.png","/system/bootmenu/images/indeterminate1.png");
+symlink("indeterminate.png","/system/bootmenu/images/indeterminate2.png");
+symlink("indeterminate.png","/system/bootmenu/images/indeterminate3.png");
+symlink("indeterminate.png","/system/bootmenu/images/indeterminate4.png");
+symlink("indeterminate.png","/system/bootmenu/images/indeterminate5.png");
+symlink("indeterminate.png","/system/bootmenu/images/indeterminate6.png");
+
+ui_print("set permissions...");
+set_perm_recursive(0, 0, 0755, 0644, "/system/bootmenu");
+set_perm_recursive(0, 0, 0755, 0755, "/system/bootmenu/binary/");
+set_perm_recursive(0, 0, 0755, 0755, "/system/bootmenu/script/");
+set_perm_recursive(0, 0, 0755, 0755, "/system/bootmenu/recovery/sbin/");
+set_perm_recursive(0, 0, 0755, 0755, "/system/bootmenu/2nd-init/sbin/");
+set_perm_recursive(0, 0, 0755, 0755, "/system/bootmenu/2nd-boot/sbin/");
+set_perm_recursive(0, 2000, 0775, 0664, "/system/bootmenu/config/");
+set_perm(0, 0, 0755, "/system/bootmenu/2nd-init/init");
+set_perm(0, 0, 0755, "/system/bootmenu/2nd-boot/init");
+set_perm(0, 0755, 0755, "/system/bin/bootmenu");
+set_perm(0, 0755, 0755, "/system/bin/logwrapper.bin");
+
+ui_print("Done.");
