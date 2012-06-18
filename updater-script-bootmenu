@@ -1,5 +1,7 @@
 ui_print("*******************************************");
-ui_print("** Installing Touch-Bootmenu + Multiboot **");
+ui_print("** Touch-Bootmenu + Multiboot {DATE}");
+ui_print("** Bootmenu-Version: {BOOTMENU_VERSION}");
+ui_print("** Multiboot-Version: {MULTIBOOT_VERSION}");
 ui_print("*******************************************");
 
 ui_print("Mount system RW...");

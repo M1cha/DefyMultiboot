@@ -1,5 +1,5 @@
 
-MULTIBOOT_VERSION := 0.6
+MULTIBOOT_VERSION := 0.7
 
 multiboot_dir := external/multiboot
 installer_dir := $(PRODUCT_OUT)/bootmenu-standalone
@@ -77,6 +77,21 @@ bootmenu_standalone_copy_files:
 	cp $(multiboot_dir)/META-INF/com/google/android/update-binary $(installer_dir)/META-INF/com/google/android/update-binary
 	cp $(multiboot_dir)/updater-script-bootmenu $(installer_dir)/META-INF/com/google/android/updater-script
 	cp $(multiboot_dir)/script-bootmenu-installer.sh $(installer_dir)/META-INF/com/google/android/script-bootmenu-installer.sh
+	
+	# write date into update-script
+	mv $(installer_dir)/META-INF/com/google/android/updater-script $(installer_dir)/META-INF/com/google/android/updater-script.tmp
+	sed -r "s/\{DATE\}/`date +%F`/" $(installer_dir)/META-INF/com/google/android/updater-script.tmp > $(installer_dir)/META-INF/com/google/android/updater-script
+	rm $(installer_dir)/META-INF/com/google/android/updater-script.tmp
+	
+	# write multiboot-version into update-script
+	mv $(installer_dir)/META-INF/com/google/android/updater-script $(installer_dir)/META-INF/com/google/android/updater-script.tmp
+	sed -r 's/\{MULTIBOOT_VERSION\}/$(MULTIBOOT_VERSION)/' $(installer_dir)/META-INF/com/google/android/updater-script.tmp > $(installer_dir)/META-INF/com/google/android/updater-script
+	rm $(installer_dir)/META-INF/com/google/android/updater-script.tmp
+	
+	# write bootmenu-version into update-script
+	mv $(installer_dir)/META-INF/com/google/android/updater-script $(installer_dir)/META-INF/com/google/android/updater-script.tmp
+	sed -r "s/\{BOOTMENU_VERSION\}/`cat external/bootmenu/Android.mk | grep BOOTMENU_VERSION:=|cut -d'=' -f2`/" $(installer_dir)/META-INF/com/google/android/updater-script.tmp > $(installer_dir)/META-INF/com/google/android/updater-script
+	rm $(installer_dir)/META-INF/com/google/android/updater-script.tmp
 	
 	# build zip
 	cd $(installer_dir) && zip -r ../bootmenu-standalone.zip *
