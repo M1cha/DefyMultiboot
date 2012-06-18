@@ -76,6 +76,7 @@ bootmenu_standalone_copy_files:
 	mkdir -p $(installer_dir)/META-INF/com/google/android
 	cp $(multiboot_dir)/META-INF/com/google/android/update-binary $(installer_dir)/META-INF/com/google/android/update-binary
 	cp $(multiboot_dir)/updater-script-bootmenu $(installer_dir)/META-INF/com/google/android/updater-script
+	cp $(multiboot_dir)/script-bootmenu-installer.sh $(installer_dir)/META-INF/com/google/android/script-bootmenu-installer.sh
 	
 	# build zip
 	cd $(installer_dir) && zip -r ../bootmenu-standalone.zip *

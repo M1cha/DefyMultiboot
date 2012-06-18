@@ -8,10 +8,8 @@ mount("ext3", "EMMC", "/dev/block/mmcblk1p21", "/system");
 ui_print("remove old files...");
 delete_recursive("/system/bootmenu/2nd-system");
 delete_recursive("/system/bootmenu/binary");
-delete_recursive("/system/bootmenu/config");
 delete_recursive("/system/bootmenu/images");
-delete_recursive("/system/bootmenu/recovery");
-delete_recursive("/system/bootmenu/scripts");
+delete_recursive("/system/bootmenu/script");
 delete("/system/bin/lsof");
 delete("/system/bin/bootmenu");
 delete("/system/bin/logwrapper");
@@ -19,7 +17,11 @@ delete("/system/bin/logwrapper.bin");
 delete("/system/xbin/logwrapper");
 
 ui_print("copy new files...");
-package_extract_dir("system", "/system");
+package_extract_dir("system/bootmenu/2nd-system", "/system/bootmenu/2nd-system");
+package_extract_dir("system/bootmenu/binary", "/system/bootmenu/binary");
+package_extract_dir("system/bootmenu/images", "/system/bootmenu/images");
+package_extract_dir("system/bootmenu/script", "/system/bootmenu/script");
+package_extract_dir("system/bin", "/system/bin");
 package_extract_file("system/bin/bootmenu", "/system/bootmenu/binary/bootmenu");
 
 ui_print("create symlinks...");
@@ -32,6 +34,12 @@ symlink("indeterminate.png","/system/bootmenu/images/indeterminate3.png");
 symlink("indeterminate.png","/system/bootmenu/images/indeterminate4.png");
 symlink("indeterminate.png","/system/bootmenu/images/indeterminate5.png");
 symlink("indeterminate.png","/system/bootmenu/images/indeterminate6.png");
+
+ui_print("running shell-script...");
+package_extract_dir("system/bootmenu", "/tmp/bootmenu-installer/bootmenu");
+package_extract_file("META-INF/com/google/android/script-bootmenu-installer.sh", "/tmp/bootmenu-installer/script.sh");
+set_perm(0, 0, 0777, "/tmp/bootmenu-installer/script.sh");
+run_program("/tmp/bootmenu-installer/script.sh");
 
 ui_print("set permissions...");
 set_perm_recursive(0, 0, 0755, 0644, "/system/bootmenu");
