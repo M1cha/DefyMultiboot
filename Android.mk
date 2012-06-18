@@ -30,7 +30,7 @@ multiboot_copy_to_temp:
 	find $(PRODUCT_OUT)/multiboot-standalone/ -type f -name ".gitignore" -exec rm -f {} \;
 	
 	# create version-file
-	echo $(MULTIBOOT_VERSION) > $(PRODUCT_OUT)/multiboot-standalone/system/bootmenu/2nd-system/.version
+	echo -n $(MULTIBOOT_VERSION) > $(PRODUCT_OUT)/multiboot-standalone/system/bootmenu/2nd-system/.version
 	
 multiboot_copy_to_product:
 	cp -R $(PRODUCT_OUT)/multiboot-standalone/system $(PRODUCT_OUT)/
