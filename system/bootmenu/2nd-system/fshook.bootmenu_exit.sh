@@ -8,12 +8,7 @@ source $BM_ROOTDIR/2nd-system/fshook.config.sh
 source $BM_ROOTDIR/2nd-system/fshook.functions.sh
 
 if [ ! -f $FSHOOK_PATH_BYPASS_CLEANUP ];then
-  umount $FSHOOK_PATH_MOUNT_IMAGESRC
-
-  if [ "$?" -eq "0" ]; then
-    rm -rf $FSHOOK_PATH_RD
-  fi
-   
+  cleanup
 fi
 
 exit

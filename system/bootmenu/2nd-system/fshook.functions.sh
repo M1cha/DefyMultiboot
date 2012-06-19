@@ -109,12 +109,15 @@ cleanup()
 {
    logd "cleanup..."
    umount $FSHOOK_PATH_MOUNT_IMAGESRC
-   errorCheck
-   umount $FSHOOK_PATH_MOUNT_CACHE
-   errorCheck
+   umount $FSHOOK_PATH_MOUNT_SYSTEM
    umount $FSHOOK_PATH_MOUNT_DATA
-   errorCheck
-   rm -rf $FSHOOK_PATH_RD
+   umount $FSHOOK_PATH_MOUNT_CACHE
+   
+   if [ `busybox mount | grep -c '/fshook'` -lt 1 ];then
+      rm -rf $FSHOOK_PATH_RD
+   else
+      throwError 1
+   fi
 }
 
 move_system()
