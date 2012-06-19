@@ -23,12 +23,9 @@ fshook_init
 # Lib-Path for TWRP-recovery
 export LD_LIBRARY_PATH=.:/sbin
 
-# update fshookstatus
-export fshookstatus="recovery"
-saveEnv
-
-# edit devtree
-run_script $FSHOOK_PATH_RD_FILES/fshook.edit_devtree.sh true
+# initilialize hooks
+setup_loopdevices
+load_kernelmodules
 
 # switch to virtual cache-image
 logd "switch to virtual cache-partition..."

@@ -19,10 +19,18 @@ logi "Started fshook."
 # remount dev(moved from 2nd-init because at an later stage this would kill fshook)
 mount -o remount,rw,relatime,mode=775,size=128k /dev
 
+# initialize environment
 fshook_init
-run_script $FSHOOK_PATH_RD_FILES/fshook.edit_devtree.sh true
+
+# initilialize hooks
+setup_loopdevices
+load_kernelmodules
+
+# switch to virual system-partition
 move_system
 busybox mount -o rw $PART_SYSTEM /system
+
+# setting bypass-signs
 bypass_sign "yes"
 touch $FSHOOK_PATH_BYPASS_CLEANUP
 
