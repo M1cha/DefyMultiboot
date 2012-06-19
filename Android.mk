@@ -93,6 +93,8 @@ bootmenu_standalone_copy_files:
 	sed -r "s/\{BOOTMENU_VERSION\}/`cat external/bootmenu/Android.mk | grep BOOTMENU_VERSION:=|cut -d'=' -f2`/" $(installer_dir)/META-INF/com/google/android/updater-script.tmp > $(installer_dir)/META-INF/com/google/android/updater-script
 	rm $(installer_dir)/META-INF/com/google/android/updater-script.tmp
 	
+	$(multiboot_dir)/build_addon.sh $(installer_dir) $(multiboot_dir)
+	
 	# build zip
 	cd $(installer_dir) && zip -r ../bootmenu-standalone.zip *
 	
