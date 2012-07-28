@@ -302,11 +302,14 @@ setup_loopdevices()
 
 load_kernelmodules()
 {
-  logi "Loading kernel-modules..."
+  	logi "Loading kernel-modules..."
  
-  logd "Loading kernel_module: symsearch.ko"
-	insmod $FSHOOK_PATH_RD_FILES/kernel-modules/symsearch.ko
-	errorCheck
+	if [ -z "`lsmod | grep symsearch`" ]; then
+  		logd "Loading kernel_module: symsearch.ko"
+		insmod $FSHOOK_PATH_RD_FILES/kernel-modules/symsearch.ko
+		errorCheck
+	fi
+
 	logd "Loading kernel_module: multiboot.ko"
 	insmod $FSHOOK_PATH_RD_FILES/kernel-modules/multiboot.ko
 	errorCheck
