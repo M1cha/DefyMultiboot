@@ -1,9 +1,11 @@
-EOF
-}
 
 case "$1" in
   backup)
     list_files | while read FILE DUMMY; do
+      backup_file $S/"$FILE"
+    done
+    
+    list_files_recovery | while read FILE DUMMY; do
       backup_file $S/"$FILE"
     done
   ;;
@@ -15,6 +17,16 @@ case "$1" in
       [ -n "$REPLACEMENT" ] && R="$S/$REPLACEMENT"
       [ -f "$C/$S/$FILE" ] && restore_file $S/"$FILE" "$R"
     done
+    
+    # copy recovery if teamwin is not installed
+    if [ ! -f /system/bootmenu/recovery/sbin/teamwin ];then
+      rm -Rf /system/bootmenu/recovery
+      list_files_recovery | while read FILE REPLACEMENT; do
+	R=""
+	[ -n "$REPLACEMENT" ] && R="$S/$REPLACEMENT"
+	[ -f "$C/$S/$FILE" ] && restore_file $S/"$FILE" "$R"
+      done
+    fi
 
     # copy bootmenu-alias
     cp /system/bin/bootmenu /system/bootmenu/binary/bootmenu

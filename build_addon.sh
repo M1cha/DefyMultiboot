@@ -20,10 +20,27 @@ getfiles() {
 
 cd $FOLDER/system
 mkdir -p ./addon.d/
+
+# header
 cp -f $MULTIBOOT_DIR/addon.top.sh  ./addon.d/70-multiboot.sh
+
+# function list_files
+echo "list_files() {"    >> ./addon.d/70-multiboot.sh
+echo "cat <<EOF"         >> ./addon.d/70-multiboot.sh
 getfiles bootmenu/2nd-system >> ./addon.d/70-multiboot.sh
 getfiles bootmenu/binary >> ./addon.d/70-multiboot.sh
 getfiles bootmenu/images >> ./addon.d/70-multiboot.sh
 getfiles bootmenu/script >> ./addon.d/70-multiboot.sh
-getfiles bin >> ./addon.d/70-multiboot.sh
+getfiles bin             >> ./addon.d/70-multiboot.sh
+echo "bootmenu/config/multiboot_default_system.conf" >> ./addon.d/70-multiboot.sh
+echo "EOF"               >> ./addon.d/70-multiboot.sh
+echo "}"                 >> ./addon.d/70-multiboot.sh
+
+# function list_files
+echo "list_files_recovery() {"    >> ./addon.d/70-multiboot.sh
+echo "cat <<EOF"         >> ./addon.d/70-multiboot.sh
+getfiles bootmenu/recovery >> ./addon.d/70-multiboot.sh
+echo "EOF"               >> ./addon.d/70-multiboot.sh
+echo "}"                 >> ./addon.d/70-multiboot.sh
+
 cat $MULTIBOOT_DIR/addon.bottom.sh >> ./addon.d/70-multiboot.sh

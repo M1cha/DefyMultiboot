@@ -7,5 +7,4 @@
 
 . /tmp/backuptool.functions
 
-list_files() {
-cat <<EOF
+
