@@ -25,22 +25,28 @@ if [ "`cat /cache/bootmenu/last_bootmode`" == "2nd-system" ];then
      $BB mount -o rw $cacheimage $FSHOOK_PATH_MOUNT_CACHE
      
      if [ -f $FSHOOK_PATH_MOUNT_CACHE/recovery/bootmode.conf ];then
-	     bootmode=`cat $FSHOOK_PATH_MOUNT_CACHE/recovery/bootmode.conf`
-	     
-	     if [ "$bootmode" == "recovery" ];then
-	     	bootmode="2nd-system-recovery"
-	     	cat /cache/bootmenu/last_mbsystem > /cache/recovery/multiboot_bootmode.conf
-	     fi
-	     
-	     # write bootmode to NAND
-	     echo -n "$bootmode" > /cache/recovery/bootmode.conf
-	     
-	     # clear virtual bootmode
-	     mv $FSHOOK_PATH_MOUNT_CACHE/recovery/bootmode.conf $FSHOOK_PATH_MOUNT_CACHE/recovery/last_bootmode
-	   fi
+	bootmode=`cat $FSHOOK_PATH_MOUNT_CACHE/recovery/bootmode.conf`
+	
+	if [ "$bootmode" == "recovery" ];then
+	  bootmode="2nd-system-recovery"
+	  cat /cache/bootmenu/last_mbsystem > /cache/recovery/multiboot_bootmode.conf
+	fi
+	
+	# write bootmode to NAND
+	echo -n "$bootmode" > /cache/recovery/bootmode.conf
+	
+	# clear virtual bootmode
+	mv $FSHOOK_PATH_MOUNT_CACHE/recovery/bootmode.conf $FSHOOK_PATH_MOUNT_CACHE/recovery/last_bootmode
+     fi
 	   
-	   # unmount virtual cache-partition
+     # unmount virtual cache-partition
      umount $FSHOOK_PATH_MOUNT_CACHE
+     
+     # FIX: disassociate loop-device
+     loopdevicename=`losetup | grep "$cacheimage" | cut -d':' -f0`
+     if [ -n $loopdevicename ];then
+	losetup -d $loopdevicename
+     fi
   fi
 fi
 
