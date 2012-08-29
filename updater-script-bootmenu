@@ -7,6 +7,11 @@ ui_print("*******************************************");
 ui_print("Mount system RW...");
 mount("ext3", "EMMC", "/dev/block/mmcblk1p21", "/system");
 
+ui_print("running shell-script for TLS-detection...");
+package_extract_file("META-INF/com/google/android/script-tls-detection.sh", "/tmp/bootmenu-installer/script-tls-detection.sh");
+set_perm(0, 0, 0777, "/tmp/bootmenu-installer/script-tls-detection.sh");
+run_program("/tmp/bootmenu-installer/script-tls-detection.sh");
+
 ui_print("remove old files...");
 delete_recursive("/system/bootmenu/2nd-system");
 delete_recursive("/system/bootmenu/binary");
@@ -19,6 +24,7 @@ delete("/system/bin/logwrapper.bin");
 delete("/system/xbin/logwrapper");
 
 ui_print("copy new files...");
+package_extract_dir("system/addon.d", "/system/addon.d");
 package_extract_dir("system/bootmenu/2nd-system", "/system/bootmenu/2nd-system");
 package_extract_dir("system/bootmenu/binary", "/system/bootmenu/binary");
 package_extract_dir("system/bootmenu/images", "/system/bootmenu/images");

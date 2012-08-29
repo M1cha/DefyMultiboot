@@ -11,9 +11,9 @@ if [ ! -d /system/bootmenu/2nd-init ];then
 fi
 
 # moto
-if [ ! -d /system/bootmenu/moto ];then
-  cp -R /tmp/bootmenu-installer/bootmenu/moto /system/bootmenu/moto
-fi
+#if [ ! -d /system/bootmenu/moto ];then
+#  cp -R /tmp/bootmenu-installer/bootmenu/moto /system/bootmenu/moto
+#fi
 
 # config
 if [ ! -d /system/bootmenu/config ];then

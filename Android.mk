@@ -38,8 +38,9 @@ multiboot_copy_to_product:
 multiboot_standalone_update:
 	# copy kernel-modules
 	mkdir -p $(PRODUCT_OUT)/multiboot-standalone/system/bootmenu/2nd-system/kernel-modules
-	cp device/motorola/jordan/modules/symsearch/symsearch.ko $(PRODUCT_OUT)/multiboot-standalone/system/bootmenu/2nd-system/kernel-modules/
-	cp device/motorola/jordan/modules/multiboot/multiboot.ko $(PRODUCT_OUT)/multiboot-standalone/system/bootmenu/2nd-system/kernel-modules/
+	cp $(PRODUCT_OUT)/system/lib/modules/symsearch.ko $(PRODUCT_OUT)/multiboot-standalone/system/bootmenu/2nd-system/kernel-modules/
+	cp $(PRODUCT_OUT)/system/lib/modules/multiboot.ko $(PRODUCT_OUT)/multiboot-standalone/system/bootmenu/2nd-system/kernel-modules/
+	cp $(PRODUCT_OUT)/system/lib/modules/tls-enable.ko $(PRODUCT_OUT)/multiboot-standalone/system/bootmenu/2nd-system/kernel-modules/
 	
 	# copy updater-script
 	cp -R $(multiboot_dir)/META-INF $(PRODUCT_OUT)/multiboot-standalone/
@@ -77,6 +78,7 @@ bootmenu_standalone_copy_files:
 	cp $(multiboot_dir)/META-INF/com/google/android/update-binary $(installer_dir)/META-INF/com/google/android/update-binary
 	cp $(multiboot_dir)/updater-script-bootmenu $(installer_dir)/META-INF/com/google/android/updater-script
 	cp $(multiboot_dir)/script-bootmenu-installer.sh $(installer_dir)/META-INF/com/google/android/script-bootmenu-installer.sh
+	cp $(multiboot_dir)/script-tls-detection.sh $(installer_dir)/META-INF/com/google/android/script-tls-detection.sh
 	
 	# write date into update-script
 	mv $(installer_dir)/META-INF/com/google/android/updater-script $(installer_dir)/META-INF/com/google/android/updater-script.tmp

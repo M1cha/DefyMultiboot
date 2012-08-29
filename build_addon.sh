@@ -8,7 +8,7 @@ MULTIBOOT_DIR="$TOP_DIR/$2"
 getfiles() {
   for i in `ls -a $1`
   do
-    if [ "$i" == "." ] || [ "$i" == ".." ];then
+    if [ "$i" = "." ] || [ "$i" = ".." ];then
       continue
     fi
     echo "$1/$i"

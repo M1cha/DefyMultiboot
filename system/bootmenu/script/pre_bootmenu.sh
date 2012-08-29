@@ -4,7 +4,7 @@
 ######## Execute Pre BootMenu
 
 #We should insmod TLS Module before start bootmenu
-if [ -f /system/bootmenu/.enabletls ];then
+if [ -f /system/bootmenu/config/.enabletls ];then
   /system/bootmenu/binary/busybox insmod /system/bootmenu/2nd-system/kernel-modules/symsearch.ko
   /system/bootmenu/binary/busybox insmod /system/bootmenu/2nd-system/kernel-modules/tls-enable.ko
 fi
