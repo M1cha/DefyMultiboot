@@ -129,6 +129,48 @@ move_system()
   errorCheck
 }
 
+tlscheck()
+{
+  # multiboot not installed
+  if [ "`cat /system/bootmenu/script/pre_bootmenu.sh | grep -c '\.enabletls'`" -eq 0 ];then
+  
+    # and tls-enabled
+    if [ "`cat /system/bootmenu/script/pre_bootmenu.sh | grep -c 'tls-enable\.ko'`" -ge 1 ];then
+      load_tls_module
+      
+    # and tls-disabled
+    else
+      unload_tls_module
+    fi
+  
+  # multiboot installed and tls-enabled
+  elif [ -f /system/bootmenu/config/.enabletls ];then
+    load_tls_module
+    
+  # multiboot installed and tls-disabled
+  else
+    unload_tls_module
+  fi
+}
+
+load_tls_module()
+{
+  load_symsearch
+  if [ -z "`lsmod | grep tls_enable`" ]; then
+    logd "Loading kernel_module: tls-enable.ko"
+    insmod $FSHOOK_PATH_RD_FILES/kernel-modules/tls-enable.ko
+    errorCheck
+  fi
+}
+
+unload_tls_module()
+{
+  if [ -n "`lsmod | grep tls_enable`" ]; then
+    logd "Unload kernel_module: tls-enable.ko"
+    rmmod tls_enable
+  fi
+}
+
 bypass_sign()
 {
   logi "Setting bypass_sign to '$1'..."
@@ -300,15 +342,19 @@ setup_loopdevices()
 	done
 }
 
-load_kernelmodules()
+load_symsearch()
 {
-  	logi "Loading kernel-modules..."
- 
 	if [ -z "`lsmod | grep symsearch`" ]; then
   		logd "Loading kernel_module: symsearch.ko"
 		insmod $FSHOOK_PATH_RD_FILES/kernel-modules/symsearch.ko
 		errorCheck
 	fi
+}
+
+load_kernelmodules()
+{
+  	logi "Loading kernel-modules..."
+	load_symsearch	
 
 	logd "Loading kernel_module: multiboot.ko"
 	insmod $FSHOOK_PATH_RD_FILES/kernel-modules/multiboot.ko

@@ -48,6 +48,9 @@ done
 # add lsof to debug locks
 cp -f /system/bootmenu/binary/lsof /sbin/lsof
 
+# static log-command
+cp -f /system/bootmenu/binary/log /sbin/log
+
 $BB chmod +rx /sbin/*
 
 # backup original init.rc

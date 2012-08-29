@@ -30,6 +30,9 @@ load_kernelmodules
 move_system
 busybox mount -o rw $PART_SYSTEM /system
 
+# enable tls if new system-partition needs it
+tlscheck
+
 # setting bypass-signs
 bypass_sign "yes"
 touch $FSHOOK_PATH_BYPASS_CLEANUP
