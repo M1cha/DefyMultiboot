@@ -93,16 +93,16 @@ checkKernel()
       logi "Flashing VS's partitions..."
       
       # flash VS's partition's
-		  dd if="$FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/boot.img" of=/dev/block/boot
-		  dd if="$FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/devtree.img" of=/dev/block/mmcblk1p12
-		  dd if="$FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/logo.img" of=/dev/block/mmcblk1p10
-		  
-		  # reboot
+      dd if="$FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/boot.img" of=/dev/block/boot
+      dd if="$FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/devtree.img" of=/dev/block/mmcblk1p12
+      dd if="$FSHOOK_PATH_MOUNT_IMAGESRC$FSHOOK_CONFIG_VS/.nand/logo.img" of=/dev/block/mmcblk1p10
+      
+      # reboot
       echo "bootvirtual:$result_name" > $FSHOOK_PATH_MOUNT_CACHE/multiboot/.bypass
       reboot
-	 else
-		  logi "NAND already uses same partitions like VS."
-	 fi
+      else
+	  logi "NAND already uses same partitions like VS."
+      fi
 }
 
 cleanup()
@@ -253,7 +253,7 @@ throwError()
     cp -f $logpath/multiboot.log $logpath/error.log
 
     # show graphical error
-    $FSHOOK_PATH_RD_FILES/errormessage $1
+    $FSHOOK_PATH_RD_FILES/binary/errormessage $1
     
     # reboot and exit
     reboot
@@ -367,7 +367,7 @@ extractRamdiskFromBoot()
   if [ -f "$bootimgfile" ]; then
 	  # unpack bootimg
 	  mkdir -p "$FSHOOK_PATH_RD_TMP/unpackbootimg"
-	  $FSHOOK_PATH_RD_FILES/unpackbootimg -i "$bootimgfile" -o "$FSHOOK_PATH_RD_TMP/unpackbootimg"
+	  $FSHOOK_PATH_RD_FILES/binary/unpackbootimg -i "$bootimgfile" -o "$FSHOOK_PATH_RD_TMP/unpackbootimg"
 	  
 	  # extract ramdisk to root
 	  cd /

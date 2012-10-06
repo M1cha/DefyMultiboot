@@ -6,7 +6,7 @@ mount -o remount,rw /
 rm -f /*.rc
 cp -r -f /system/bootmenu/2nd-init/* /
 chmod 755 /*.rc
-chmod 4755 $FSHOOK_PATH_RD_FILES/2nd-init
+chmod 4755 $FSHOOK_PATH_RD_FILES/binary/2nd-init
 ln -s /init /sbin/ueventd
 
 ADBD_RUNNING=`ps | grep adbd | grep -v grep`
@@ -65,4 +65,4 @@ rm /sbin/busybox
 echo 18 > /sys/class/leds/lcd-backlight/brightness
 
 ######## Let's go
-$FSHOOK_PATH_RD_FILES/2nd-init
+$FSHOOK_PATH_RD_FILES/binary/2nd-init
