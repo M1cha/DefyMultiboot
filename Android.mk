@@ -1,5 +1,5 @@
 
-MULTIBOOT_VERSION := 0.7
+MULTIBOOT_VERSION := 0.8
 
 multiboot_dir := external/multiboot
 installer_dir := $(PRODUCT_OUT)/bootmenu-standalone
